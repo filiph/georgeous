@@ -27,28 +27,39 @@ import android.widget.TextView;
 public class ArticleDisplayFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "ArticleDisplayFragment";
 	private static final int ARTICLE_DISPLAY_ID = 1;
-	private long mArticleId;
+	private static final String SAVED_ARTICLE_ID = "SAVED_ARTICLE_ID";
+	private long mArticleId = -1;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		
+		if (savedInstanceState != null && savedInstanceState.containsKey(SAVED_ARTICLE_ID)) {
+			mArticleId = savedInstanceState.getLong(SAVED_ARTICLE_ID);
+		}
+		
 		return inflater.inflate(R.layout.display_article_fragment, container, false);
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.v(TAG, "onStart called");
+		Log.v(TAG, "onStart called, mArticleId = " + mArticleId);
 		
-		Intent intent = getActivity().getIntent();
-		mArticleId = intent.getLongExtra(Constants.ARTICLE_ID_EXTRA, -1);
-
 		if (mArticleId != -1) {
-			getLoaderManager().initLoader(ARTICLE_DISPLAY_ID, null, this);
+			// mArticle was initialized from savedInstanceState.
+			loadArticle(mArticleId);
 		} else {
-			// TODO: show somehow that we're waiting for user to click on an article (but not loading anything)
-			ProgressBar progressCircle = (ProgressBar) getActivity().findViewById(R.id.progress_circle);
-			progressCircle.setVisibility(ProgressBar.GONE);
+			Intent intent = getActivity().getIntent();
+			mArticleId = intent.getLongExtra(Constants.ARTICLE_ID_EXTRA, -1);
+
+			if (mArticleId != -1) {
+				getLoaderManager().initLoader(ARTICLE_DISPLAY_ID, null, this);
+			} else {
+				// TODO: show somehow that we're waiting for user to click on an article (but not loading anything)
+				ProgressBar progressCircle = (ProgressBar) getActivity().findViewById(R.id.progress_circle);
+				progressCircle.setVisibility(ProgressBar.GONE);
+			}
 		}
 	}
 
@@ -98,6 +109,12 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 	public void onLoaderReset(Loader<Cursor> loader) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putLong(SAVED_ARTICLE_ID, mArticleId);
 	}
 	
 	private class ArticleDisplayTask extends AsyncTask<Cursor, Void, CharSequence[]> {

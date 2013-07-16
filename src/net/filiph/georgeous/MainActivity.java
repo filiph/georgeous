@@ -39,6 +39,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	
 	private SharedPreferences mPrefs;
 	
+	private long mLatestArticleId = -1;
+	
 	private GeorgeFragment mGeorgeFragment;
 
 	private static final IntentFilter receiverIntentFilter;
@@ -319,6 +321,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 
 	@Override
 	public void onItemSelected(long id) {
+		mLatestArticleId = id;
 		if (!mTwoPane) {
 			Intent intent = new Intent(this, ArticleDisplayActivity.class);
 			intent.putExtra(Constants.ARTICLE_ID_EXTRA, id);
