@@ -9,9 +9,8 @@
     
     <!-- Font sizes -->
     <dimen name="large_header">22sp</dimen>
+    <dimen name="content_text_size">14sp</dimen>
     <dimen name="zero">0px</dimen>
-
-    
-    
+    <dimen name="content_text_line_spacing">6sp</dimen>
 
 </resources>
