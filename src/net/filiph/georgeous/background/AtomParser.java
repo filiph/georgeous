@@ -82,7 +82,7 @@ public class AtomParser {
             }
             String name = parser.getName();
             if (name.equals("title")) {
-                title = readTitle(parser);
+                title = readTitle(parser).trim();
             } else if (name.equals("content")) {
                 content = readContent(parser);
             } else if (name.equals("media:thumbnail")) {
