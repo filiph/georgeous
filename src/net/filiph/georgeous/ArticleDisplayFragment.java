@@ -148,6 +148,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 				if (title == null || contentHtml == null) {
 					throw new IllegalStateException("The cursor received an article with null contents.");
 				}
+				data.close();
 			}
 
 			DisplayMetrics metrics = new DisplayMetrics();
