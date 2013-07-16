@@ -14,63 +14,88 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 
-public class ArticleListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleListFragment extends ListFragment implements
+		LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "ArticleListFragment";
 	private static final int ARTICLE_LIST_ID = 0;
-	
+
 	private static final String SAVED_ACTIVATED_POSITION = "SAVED_ACTIVATED_POSITION";
+	private static final String SAVED_SCROLL_INDEX = "SAVED_SCROLL_INDEX";
+	private static final String SAVED_SCROLL_TOP = "SAVED_SCROLL_TOP";
+
+	private int mScrollIndex = 0;
+	private int mScrollTop = 0;
 	
 	private SimpleCursorAdapter mAdapter;
-	
+
 	// The current activity to call with callbacks.
 	private Callbacks mCallbacks = sDummyCallbacks;
-	
+
 	public interface Callbacks {
 		/**
 		 * Callback for when an item has been selected.
 		 */
 		public void onItemSelected(long id);
 	}
-	
+
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
 		public void onItemSelected(long id) {
 			Log.w(TAG, "Item selected but no proper callback was setup.");
 		}
 	};
-	
+
 	/**
 	 * Mandatory empty constructor for the fragment manager to instantiate the
 	 * fragment (e.g. upon screen orientation changes).
 	 */
 	public ArticleListFragment() {
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		String[] fromColumns = {DbHelper.KEY_TITLE, DbHelper.KEY_CANONICAL_URL};
-		int[] toViews = {R.id.article_in_list_title, R.id.more_info};
-		
-		mAdapter = new SimpleCursorAdapter(getActivity(), 
-				R.layout.each_article_in_list, null, 
-				fromColumns, toViews, 0);
+
+		String[] fromColumns = { DbHelper.KEY_TITLE, DbHelper.KEY_CANONICAL_URL };
+		int[] toViews = { R.id.article_in_list_title, R.id.more_info };
+
+		mAdapter = new SimpleCursorAdapter(getActivity(),
+				R.layout.each_article_in_list, null, fromColumns, toViews, 0);
 		setListAdapter(mAdapter);
 	}
-	
+
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
 		// Restore the previously serialized activated item position.
-		if (savedInstanceState != null
-				&& savedInstanceState.containsKey(SAVED_ACTIVATED_POSITION)) {
-			setActivatedPosition(savedInstanceState
-					.getInt(SAVED_ACTIVATED_POSITION));
+		if (savedInstanceState != null) {
+			if (savedInstanceState.containsKey(SAVED_ACTIVATED_POSITION)) {
+				setActivatedPosition(savedInstanceState
+						.getInt(SAVED_ACTIVATED_POSITION));
+			}
+			if (savedInstanceState.containsKey(SAVED_SCROLL_INDEX) && 
+					savedInstanceState.containsKey(SAVED_SCROLL_TOP)) {
+				mScrollIndex = savedInstanceState.getInt(SAVED_SCROLL_INDEX);
+				mScrollTop = savedInstanceState.getInt(SAVED_SCROLL_TOP);
+			}
 		}
 	}
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+		getListView().setSelectionFromTop(mScrollIndex, mScrollTop);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		mScrollIndex = getListView().getFirstVisiblePosition();
+		View firstItem = getListView().getChildAt(0);
+		mScrollTop = (firstItem == null) ? 0 : firstItem.getTop();
+	}
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -83,7 +108,7 @@ public class ArticleListFragment extends ListFragment implements LoaderManager.L
 
 		mCallbacks = (Callbacks) activity;
 	}
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -91,7 +116,7 @@ public class ArticleListFragment extends ListFragment implements LoaderManager.L
 		// Reset the active callbacks interface to the dummy implementation.
 		mCallbacks = sDummyCallbacks;
 	}
-	
+
 	@Override
 	public void onListItemClick(ListView listView, View view, int position,
 			long id) {
@@ -101,7 +126,7 @@ public class ArticleListFragment extends ListFragment implements LoaderManager.L
 		// fragment is attached to one) that an item has been selected.
 		mCallbacks.onItemSelected(id);
 	}
-	
+
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
@@ -109,15 +134,17 @@ public class ArticleListFragment extends ListFragment implements LoaderManager.L
 			// Serialize and persist the activated item position.
 			outState.putInt(SAVED_ACTIVATED_POSITION, mActivatedPosition);
 		}
+		outState.putInt(SAVED_SCROLL_INDEX, mScrollIndex);
+		outState.putInt(SAVED_SCROLL_TOP, mScrollTop);
 	}
-	
+
 	private int mActivatedPosition = ListView.INVALID_POSITION;
-	
+
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		Log.v(TAG, "onCreateLoader called");
-		return new CursorLoader(getActivity(), FeedProvider.ARTICLES_URI, null, null,
-	            null, null);
+		return new CursorLoader(getActivity(), FeedProvider.ARTICLES_URI, null,
+				null, null, null);
 	}
 
 	@Override
@@ -136,12 +163,12 @@ public class ArticleListFragment extends ListFragment implements LoaderManager.L
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.swapCursor(null);
 	}
-	
+
 	public void notifyDatasetChanged() {
 		// mAdapter.notifyDataSetChanged(); // this doesn't do anything
 		getLoaderManager().restartLoader(ARTICLE_LIST_ID, null, this);
 	}
-	
+
 	/**
 	 * Turns on activate-on-click mode. When this mode is on, list items will be
 	 * given the 'activated' state when touched.
@@ -149,14 +176,12 @@ public class ArticleListFragment extends ListFragment implements LoaderManager.L
 	public void setActivateOnItemClick(boolean activateOnItemClick) {
 		// When setting CHOICE_MODE_SINGLE, ListView will automatically
 		// give items the 'activated' state when touched.
-		Log.v(TAG, "Setting activateOnItemClick to " + activateOnItemClick);
 		getListView().setChoiceMode(
 				activateOnItemClick ? ListView.CHOICE_MODE_SINGLE
 						: ListView.CHOICE_MODE_NONE);
 	}
-	
+
 	private void setActivatedPosition(int position) {
-		Log.v(TAG, "Setting activated position to " + position);
 		if (position == ListView.INVALID_POSITION) {
 			getListView().setItemChecked(mActivatedPosition, false);
 		} else {
