@@ -1,0 +1,14 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ArticleDisplayActivity" >
+
+    <fragment
+        android:id="@+id/article_display_fragment"
+        android:name="net.filiph.georgeous.ArticleDisplayFragment"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        tools:layout="@layout/display_article_fragment" />
+
+</RelativeLayout>

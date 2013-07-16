@@ -1,0 +1,40 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".ArticleDisplayFragment" >
+
+    <LinearLayout
+        android:id="@+id/linear_layout_for_article_display"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_horizontal_margin" >
+
+	    <TextView
+	        android:id="@+id/article_display_title"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="@dimen/rhythm_size_third"
+	        android:text="@string/empty"
+	        android:textAppearance="?android:attr/textAppearanceLarge"
+	        android:textColor="@color/headerColor"
+	        android:textSize="@dimen/large_header" />
+	
+	    <net.filiph.georgeous.JellyBeanSpanFixTextView
+	        android:id="@+id/article_content"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/empty" />
+
+	    <ProgressBar
+	        android:id="@+id/progress_circle"
+	        style="?android:attr/progressBarStyleLarge"
+	        android:layout_width="match_parent"
+	        android:layout_height="fill_parent"
+	        android:indeterminate="true" />
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/george_toast"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/rhythm_size_third" >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparentGray"
+        android:paddingBottom="@dimen/small_padding"
+        android:paddingLeft="@dimen/rhythm_size_third"
+        android:paddingRight="@dimen/rhythm_size_third"
+        android:paddingTop="@dimen/small_padding" >
+
+        <TextView
+            android:id="@+id/george_toast_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/rhythm_size_third"
+            android:drawableRight="@drawable/george"
+            android:gravity="center_vertical"
+            android:text="@string/app_name"
+            android:textColor="@color/white" />
+
+    </FrameLayout>
+
+</LinearLayout>

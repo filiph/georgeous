@@ -1,0 +1,10 @@
+
+    <resources>
+        <color name="headerColor">#33B5E5</color>
+        <color name="white">#FFF</color>
+        <color name="lightHeaderColor">#66D5FF</color>
+        <color name="lightGray">#eeeeee</color>
+        <color name="lighterGray">#fafafa</color>
+        <color name="transparentGray">#CC333333</color>
+        
+    </resources>

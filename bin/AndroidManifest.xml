@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="net.filiph.georgeous"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="17" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/george"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="net.filiph.georgeous.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="net.filiph.georgeous.ArticleDisplayActivity"
+            android:label="@string/app_name"
+            android:parentActivityName="net.filiph.georgeous.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="net.filiph.georgeous.MainActivity" />
+        </activity>
+        <service
+            android:name="net.filiph.georgeous.background.ReaderFeedService"
+            android:exported="false" >
+        </service>
+        <provider
+            android:name="net.filiph.georgeous.data.FeedProvider"
+            android:exported="false"
+            android:authorities="net.filiph.georgeous.provider" >
+        </provider>
+    </application>
+
+</manifest>
