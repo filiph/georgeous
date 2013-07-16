@@ -39,10 +39,11 @@ public final class R {
         public static final int zero=0x7f050006;
     }
     public static final class drawable {
-        public static final int chip=0x7f020000;
-        public static final int george=0x7f020001;
-        public static final int george_big=0x7f020002;
-        public static final int loader=0x7f020003;
+        public static final int activated_background=0x7f020000;
+        public static final int chip=0x7f020001;
+        public static final int george=0x7f020002;
+        public static final int george_big=0x7f020003;
+        public static final int loader=0x7f020004;
     }
     public static final class id {
         public static final int article_content=0x7f0b0003;
@@ -124,7 +125,6 @@ public final class R {
          */
         public static final int AppBaseTheme=0x7f090000;
         /**  Application theme. 
- All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f090001;
     }

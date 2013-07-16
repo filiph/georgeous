@@ -4,6 +4,7 @@
     android:layout_margin="@dimen/rhythm_size_third"
     android:orientation="vertical"
     android:textIsSelectable="true"
+    android:background="?android:attr/activatedBackgroundIndicator"
     android:padding="@dimen/activity_vertical_margin" >
 
     <TextView
