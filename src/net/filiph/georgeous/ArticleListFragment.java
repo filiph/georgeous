@@ -55,6 +55,7 @@ public class ArticleListFragment extends ListFragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.setRetainInstance(true);
 
 		String[] fromColumns = { DbHelper.KEY_TITLE, DbHelper.KEY_CANONICAL_URL };
 		int[] toViews = { R.id.article_in_list_title, R.id.more_info };
