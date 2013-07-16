@@ -29,12 +29,11 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 	private static final String TAG = "ArticleDisplayFragment";
 	private static final int ARTICLE_DISPLAY_ID = 1;
 	private static final String SAVED_ARTICLE_ID = "SAVED_ARTICLE_ID";
-	private static final String SAVED_SCROLL_POSITION = "SAVED_SCROLL_POSITION";
+	private static final String SAVED_Y_POSITION = "SAVED_Y_POSITION";
 	private long mArticleId = -1;
 	
 	private ScrollView mScrollView;
-	private int mScrollX = 0;
-	private int mScrollY = 0;
+	private float mYRelativePosition = 0f;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,12 +43,8 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 				mArticleId = savedInstanceState.getLong(SAVED_ARTICLE_ID);
 			}
 			
-			if (savedInstanceState.containsKey(SAVED_SCROLL_POSITION)) {
-				final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
-				if (position != null) {
-					mScrollX = position[0];
-					mScrollY = position[1];
-				}
+			if (savedInstanceState.containsKey(SAVED_Y_POSITION)) {
+				mYRelativePosition = savedInstanceState.getFloat(SAVED_Y_POSITION, 0f);
 			}
 		}
 		
@@ -80,6 +75,12 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 				progressCircle.setVisibility(ProgressBar.GONE);
 			}
 		}
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		mYRelativePosition = mScrollView.getScrollY() / mScrollView.getMaxScrollAmount();
 	}
 
 	/**
@@ -141,8 +142,9 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		Log.v(TAG, "Saving instance state.");
 		outState.putLong(SAVED_ARTICLE_ID, mArticleId);
-		outState.putIntArray(SAVED_SCROLL_POSITION, new int[] { mScrollView.getScrollX(), mScrollView.getScrollY() });
+		outState.putFloat(SAVED_Y_POSITION, mYRelativePosition);
 	}
 	
 	private class ArticleDisplayTask extends AsyncTask<Cursor, Void, CharSequence[]> {
@@ -240,8 +242,11 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 					contentView.setMovementMethod(LinkMovementMethod.getInstance());
 					contentView.setText(content);
 					progressCircle.setVisibility(ProgressBar.GONE);
-					mScrollView.setScrollX(mScrollX); // TODO: make this work
-					mScrollView.setScrollY(mScrollY);
+					mScrollView.post(new Runnable() {
+			            public void run() {
+			            	mScrollView.setScrollY((int) (mScrollView.getMaxScrollAmount() * mYRelativePosition));
+			            }
+			        });
 					
 					if (!mGetImages) {
 						// Go again, this time with images.
