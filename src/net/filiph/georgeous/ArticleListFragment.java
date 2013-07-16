@@ -3,14 +3,10 @@ package net.filiph.georgeous;
 import net.filiph.georgeous.data.DbHelper;
 import net.filiph.georgeous.data.FeedProvider;
 import android.app.Activity;
-import android.app.Fragment;
+import android.app.ListFragment;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.app.LoaderManager;
@@ -18,18 +14,13 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 
-public class ArticleListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "ArticleListFragment";
 	private static final int ARTICLE_LIST_ID = 0;
 	
-	private static final String SAVED_LISTVIEW_INDEX = "SAVED_LISTVIEW_INDEX";
-	private static final String SAVED_LISTVIEW_TOP = "SAVED_LISTVIEW_TOP";
 	private static final String SAVED_ACTIVATED_POSITION = "SAVED_ACTIVATED_POSITION";
 	
 	private SimpleCursorAdapter mAdapter;
-	
-	private int mIndex;
-	private int mTop;
 	
 	// The current activity to call with callbacks.
 	private Callbacks mCallbacks = sDummyCallbacks;
@@ -56,26 +47,8 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
 	}
 	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		if (savedInstanceState != null) {
-			mIndex = savedInstanceState.getInt(SAVED_LISTVIEW_INDEX, 0);
-			mTop = savedInstanceState.getInt(SAVED_LISTVIEW_TOP, 0);
-			mActivatedPosition = savedInstanceState.getInt(SAVED_ACTIVATED_POSITION, ListView.INVALID_POSITION);
-			Log.v(TAG, "Loaded instance state: " + mIndex + ":" + mTop);
-		}
-		
-		View inflatedView = inflater.inflate(R.layout.list_articles_fragment, container, false);
-		mListView = (ListView) inflatedView.findViewById(R.id.article_list);
-		mListView.setOnItemClickListener(onItemClickListener);
-		
-		return inflatedView;
-	}
-	
-	@Override
-	public void onStart() {
-		super.onStart();
-		Log.v(TAG, "onStart called");
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		
 		String[] fromColumns = {DbHelper.KEY_TITLE, DbHelper.KEY_CANONICAL_URL};
 		int[] toViews = {R.id.article_in_list_title, R.id.more_info};
@@ -83,48 +56,19 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
 		mAdapter = new SimpleCursorAdapter(getActivity(), 
 				R.layout.each_article_in_list, null, 
 				fromColumns, toViews, 0);
-		mListView.setAdapter(mAdapter);
-		
-		getLoaderManager().initLoader(ARTICLE_LIST_ID, null, this);
+		setListAdapter(mAdapter);
 	}
 	
 	@Override
-	public void onResume() {
-		super.onResume();
-		mListView.setSelectionFromTop(mIndex, mTop);
-		setActivatedPosition(mActivatedPosition);
-	}
-	
-	OnItemClickListener onItemClickListener = new OnItemClickListener() {
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
-			Log.v(TAG, "Clicked on id " + id + " on position " + position + ".");
-//			setActivatedPosition(position);
-			mActivatedPosition = position;
-			mCallbacks.onItemSelected(id);
-		}
-	};
-	private ListView mListView = null;
-	private int mActivatedPosition = ListView.INVALID_POSITION;
-	
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
 
-		if (mListView != null) {
-			// save index and top position of ArticleList
-			mIndex = mListView.getFirstVisiblePosition();
-			View v = mListView.getChildAt(0);
-			mTop = (v == null) ? 0 : v.getTop();
-			outState.putInt(SAVED_LISTVIEW_INDEX, mIndex);
-			outState.putInt(SAVED_LISTVIEW_TOP, mTop);
-			outState.putInt(SAVED_ACTIVATED_POSITION, mActivatedPosition);
-			Log.v(TAG, "Saving instance state to: " + mIndex + ":" + mTop);
-		} else {
-			Log.w(TAG, "Couldn't find listview in MainActivity.");
+		// Restore the previously serialized activated item position.
+		if (savedInstanceState != null
+				&& savedInstanceState.containsKey(SAVED_ACTIVATED_POSITION)) {
+			setActivatedPosition(savedInstanceState
+					.getInt(SAVED_ACTIVATED_POSITION));
 		}
-		
 	}
 	
 	@Override
@@ -147,6 +91,27 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
 		// Reset the active callbacks interface to the dummy implementation.
 		mCallbacks = sDummyCallbacks;
 	}
+	
+	@Override
+	public void onListItemClick(ListView listView, View view, int position,
+			long id) {
+		super.onListItemClick(listView, view, position, id);
+
+		// Notify the active callbacks interface (the activity, if the
+		// fragment is attached to one) that an item has been selected.
+		mCallbacks.onItemSelected(id);
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (mActivatedPosition != ListView.INVALID_POSITION) {
+			// Serialize and persist the activated item position.
+			outState.putInt(SAVED_ACTIVATED_POSITION, mActivatedPosition);
+		}
+	}
+	
+	private int mActivatedPosition = ListView.INVALID_POSITION;
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -185,7 +150,7 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
 		// When setting CHOICE_MODE_SINGLE, ListView will automatically
 		// give items the 'activated' state when touched.
 		Log.v(TAG, "Setting activateOnItemClick to " + activateOnItemClick);
-		mListView.setChoiceMode(
+		getListView().setChoiceMode(
 				activateOnItemClick ? ListView.CHOICE_MODE_SINGLE
 						: ListView.CHOICE_MODE_NONE);
 	}
@@ -193,9 +158,9 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
 	private void setActivatedPosition(int position) {
 		Log.v(TAG, "Setting activated position to " + position);
 		if (position == ListView.INVALID_POSITION) {
-			mListView.setItemChecked(mActivatedPosition, false);
+			getListView().setItemChecked(mActivatedPosition, false);
 		} else {
-			mListView.setItemChecked(position, true);
+			getListView().setItemChecked(position, true);
 		}
 
 		mActivatedPosition = position;

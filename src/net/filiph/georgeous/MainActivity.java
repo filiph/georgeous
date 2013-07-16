@@ -69,6 +69,11 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		
 		if (findViewById(R.id.article_pane) != null) {
 			mTwoPane = true;
+			
+			// In two-pane mode, list items should be given the
+			// 'activated' state when touched.
+			((ArticleListFragment) getFragmentManager().findFragmentById(
+					R.id.article_list_fragment)).setActivateOnItemClick(true);
 		}
 		
 		if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
@@ -78,6 +83,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		} else if (mGeorgeFragment != null) {
 			removeGeorge();
 		}
+		
+		notifyArticleListDatasetChanged();
 		
 //		loadFromInstanceState(savedInstanceState);
 		
@@ -164,12 +171,6 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			Log.v(TAG, "Checked recently or checking already in progress.");
 		}
 		
-		if (mTwoPane) {
-			// In two-pane mode, list items should be given the
-			// 'activated' state when touched.
-			((ArticleListFragment) getFragmentManager().findFragmentById(
-					R.id.article_list_fragment)).setActivateOnItemClick(true);
-		}
 	}
 	
 	
