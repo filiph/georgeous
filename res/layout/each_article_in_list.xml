@@ -3,6 +3,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/rhythm_size_third"
     android:orientation="vertical"
+    android:textIsSelectable="true"
     android:padding="@dimen/activity_vertical_margin" >
 
     <TextView
@@ -10,10 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/small_padding"
-        android:ellipsize="end"
         android:maxLines="2"
+        android:ellipsize="end"
         android:text="@string/article_title_dummy"
-        android:textAllCaps="false"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/primary_text_light" />
 
@@ -22,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"
+        android:ellipsize="end"
         android:text="@string/more_info_dummy"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/headerColor" />
