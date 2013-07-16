@@ -106,25 +106,25 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	}
 	
 	private void removeGeorge() {
-		assert(mGeorgeFragment != null);
-		Log.v(TAG, "Removing George. Bye, gorgeous.");
-		FrameLayout container = (FrameLayout) findViewById(R.id.george_fragment_view);
-		if (mGeorgeFragment.isVisible()) {
-			collapse(container, mGeorgeFragment);
-		}
+//		assert(mGeorgeFragment != null);
+//		Log.v(TAG, "Removing George. Bye, gorgeous.");
+//		FrameLayout container = (FrameLayout) findViewById(R.id.george_fragment_view);
+//		if (mGeorgeFragment.isVisible()) {
+//			collapse(container, mGeorgeFragment);
+//		}
 	}
 
 	private void hideArticlesShowGeorge() {
-		if (mGeorgeFragment == null) {
-			mGeorgeFragment = new GeorgeFragment();
-		}
-		Log.v(TAG, "Hiding articles, showing George! Hi!");
-		FrameLayout container = (FrameLayout) findViewById(R.id.george_fragment_view);
-		container.setVisibility(FrameLayout.VISIBLE);
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		ft.add(R.id.george_fragment_view, mGeorgeFragment);
-		ft.commit();
-		Log.v(TAG, "Articles hid, George shown!");
+//		if (mGeorgeFragment == null) {
+//			mGeorgeFragment = new GeorgeFragment();
+//		}
+//		Log.v(TAG, "Hiding articles, showing George! Hi!");
+//		FrameLayout container = (FrameLayout) findViewById(R.id.george_fragment_view);
+//		container.setVisibility(FrameLayout.VISIBLE);
+//		FragmentTransaction ft = getFragmentManager().beginTransaction();
+//		ft.add(R.id.george_fragment_view, mGeorgeFragment);
+//		ft.commit();
+//		Log.v(TAG, "Articles hid, George shown!");
 	}
 	
 	@Override

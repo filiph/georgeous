@@ -1,55 +1,48 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:baselineAligned="false"
-    android:orientation="horizontal"
     tools:context=".MainActivity"
     tools:ignore="MergeRootFrame" >
 
-    <FrameLayout
-        android:id="@+id/list_pane"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="2" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" 
+		    android:orientation="horizontal"
+        android:baselineAligned="false">
 
-        <fragment
-            android:id="@+id/article_list_fragment"
-            android:name="net.filiph.georgeous.ArticleListFragment"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            tools:layout="@layout/list_articles_fragment" />
-
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/article_pane"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="3" >
-
-        <fragment
-            android:id="@+id/article_display_fragment"
-            android:name="net.filiph.georgeous.ArticleDisplayFragment"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            tools:layout="@layout/display_article_fragment" />
-
-    </FrameLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent" >
-
-        <FrameLayout
-            android:id="@+id/george_fragment_view"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:visibility="gone" >
-        </FrameLayout>
-
-    </RelativeLayout>
-
-</LinearLayout>
+	    <FrameLayout
+	        android:id="@+id/list_pane"
+	        android:layout_width="0dp"
+	        android:layout_height="match_parent"
+	        android:layout_weight="2" >
+	
+	        <fragment
+	            android:id="@+id/article_list_fragment"
+	            android:name="net.filiph.georgeous.ArticleListFragment"
+	            android:layout_width="match_parent"
+	            android:layout_height="fill_parent"
+	            tools:layout="@android:layout/list_content" />
+	
+	    </FrameLayout>
+	
+	    <FrameLayout
+	        android:id="@+id/article_pane"
+	        android:layout_width="0dp"
+	        android:layout_height="match_parent"
+	        android:layout_weight="3" >
+	
+	        <fragment
+	            android:id="@+id/article_display_fragment"
+	            android:name="net.filiph.georgeous.ArticleDisplayFragment"
+	            android:layout_width="match_parent"
+	            android:layout_height="fill_parent"
+	            tools:layout="@layout/display_article_fragment" />
+	
+	    </FrameLayout>
+        
+    </LinearLayout>
+</RelativeLayout>
 
