@@ -2,6 +2,8 @@ package net.filiph.georgeous;
 
 import net.filiph.georgeous.background.ReaderFeedService;
 import net.filiph.georgeous.data.FeedProvider;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -42,8 +44,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	
 	private long mLatestArticleId = -1;
 	
-	private GeorgeFragment mGeorgeFragment;
-
+	private View mGeorgeGreeter;
+	
 	private static final IntentFilter receiverIntentFilter;
 	static {
 		receiverIntentFilter = new IntentFilter();
@@ -61,6 +63,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	private long mLastCheckTime;
 
 	private boolean mTwoPane = false;
+
+	private long mShortAnimationDuration;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +76,9 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		Log.v(TAG, "onCreate!");
 		mPrefs = getPreferences(MODE_PRIVATE);
 		
+		mGeorgeGreeter = findViewById(R.id.george_greeter);
+		mShortAnimationDuration = getResources().getInteger(
+				android.R.integer.config_shortAnimTime);
 		
 		if (findViewById(R.id.article_pane) != null) {
 			mTwoPane = true;
@@ -86,8 +93,6 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			// The user has opened Georgeous for the first time.
 			showGeorgeGreeter();
 			mGeorgeAppearedTime = System.currentTimeMillis();
-		} else if (mGeorgeFragment != null) {
-			removeGeorgeGreeter();
 		}
 		
 		notifyArticleListDatasetChanged();
@@ -105,14 +110,24 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 //		});
 	}
 	
-	private void removeGeorgeGreeter() {
-		View georgeGreeter = findViewById(R.id.george_greeter);
-		georgeGreeter.setVisibility(View.GONE);
+	private void fadeOutGeorgeGreeter() {
+		mGeorgeGreeter.animate()
+			.alpha(0f)
+			.setDuration(mShortAnimationDuration)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					mGeorgeGreeter.setVisibility(View.GONE);
+				}
+			});
 	}
-
+	
+	private void removeGeorgeGreeter() {
+		mGeorgeGreeter.setVisibility(View.GONE);
+	}
+	
 	private void showGeorgeGreeter() {
-		View georgeGreeter = findViewById(R.id.george_greeter);
-		georgeGreeter.setVisibility(View.VISIBLE);
+		mGeorgeGreeter.setVisibility(View.VISIBLE);
 	}
 	
 	@Override
@@ -215,13 +230,13 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 				Log.v(TAG, "First time visitor has new articles.");
 				long current = System.currentTimeMillis();
 				if (current - mGeorgeAppearedTime > MIN_TIME_TO_SHOW_GEORGE) {
-					removeGeorgeGreeter();
+					fadeOutGeorgeGreeter();
 				} else {
 					// Delay execution.
 					new Handler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							removeGeorgeGreeter();
+							fadeOutGeorgeGreeter();
 						}
 					}, MIN_TIME_TO_SHOW_GEORGE - (current - mGeorgeAppearedTime));
 				}

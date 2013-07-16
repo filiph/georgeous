@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ArticleDisplayFragment" >
+
+    <TextView
+        android:id="@+id/george_saying"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="@dimen/rhythm_size_third"
+        android:drawableTop="@drawable/george_big"
+        android:gravity="center"
+        android:lineSpacingExtra="@dimen/content_text_line_spacing"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:text="@string/call_to_select_article"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="@dimen/content_text_size" />
+
+</LinearLayout>
