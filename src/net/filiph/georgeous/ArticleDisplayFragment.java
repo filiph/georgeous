@@ -91,7 +91,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 		// Use AsyncTask to parse the HTML content and add images.
-		new ArticleDisplayTask(false).execute(data);
+		new ArticleDisplayTask(mArticleId, false).execute(data);
 	}
 
 	@Override
@@ -109,17 +109,20 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 		private final boolean mGetImages;
 		private String title;
 		private String contentHtml;
+		private final long mLoadingArticleId;
 		
-		public ArticleDisplayTask(boolean getImages) {
+		public ArticleDisplayTask(long articleId, boolean getImages) {
 			mGetImages = getImages;
 			title = null;
 			contentHtml = null;
+			mLoadingArticleId = articleId;
 		}
 		
-		public ArticleDisplayTask(boolean getImages, String title, String contentHtml) {
+		public ArticleDisplayTask(long articleId, boolean getImages, String title, String contentHtml) {
 			mGetImages = getImages;
 			this.title = title;
 			this.contentHtml = contentHtml;
+			mLoadingArticleId = articleId;
 		}
 
 		@Override
@@ -177,7 +180,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 		@Override
 		protected void onPostExecute(CharSequence[] strings) {
 			Activity activity = getActivity();
-			if (activity == null) {
+			if (activity == null || mLoadingArticleId != mArticleId) {
 				// We fetched the article but the user is already elsewhere. :( Some manners!
 				return;
 			}
@@ -195,7 +198,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 					
 					if (!mGetImages) {
 						// Go again, this time with images.
-						new ArticleDisplayTask(true, this.title, contentHtml).execute();
+						new ArticleDisplayTask(mLoadingArticleId, true, this.title, contentHtml).execute();
 					}
 				} else {
 					// We fetched the article but the user is already elsewhere. :( Some manners!
