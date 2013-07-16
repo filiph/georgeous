@@ -6,6 +6,6 @@
     -->
 
   <dimen name="large_header">33sp</dimen>
-  <dimen name="activity_horizontal_margin">96dp</dimen>
+  <dimen name="activity_horizontal_margin">64dp</dimen>
   
 </resources>
