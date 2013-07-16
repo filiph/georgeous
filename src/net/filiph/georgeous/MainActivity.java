@@ -22,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
@@ -64,10 +65,13 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		setContentView(R.layout.main_activity);
 		
 		Log.v(TAG, "onCreate!");
 		mPrefs = getPreferences(MODE_PRIVATE);
+		
 		
 		if (findViewById(R.id.article_pane) != null) {
 			mTwoPane = true;
@@ -168,6 +172,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			startService(refresh);
 			
 			mPrefs.edit().putBoolean(CHECK_IN_PROGRESS, true).commit();
+			
+			setProgressBarIndeterminateVisibility(true);
 			Log.v(TAG, "Starting background process to check for new articles.");
 		} else {
 			Log.v(TAG, "Checked recently or checking already in progress.");
@@ -246,6 +252,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			.putLong(LAST_CHECK_FINISHED_TIME, mLastCheckTime)
 			.putBoolean(CHECK_IN_PROGRESS, false)
 			.commit();
+			
+			setProgressBarIndeterminateVisibility(false);
 		}
 	}
 	

@@ -30,6 +30,6 @@
     <string name="george_face_description">George\'s handsome face</string>
     <string name="menu_clear">Clear offline data</string>
     <string name="no_new_articles_toast">“There are no new articles on the web. Just checked.”</string>
-    <string name="inactive_in_list_toast">“You can use your attractive fingers to select an article.”</string>
+    <string name="inactive_in_list_toast">“You can use your attractive fingers to select an article on the left.”</string>
 
 </resources>
