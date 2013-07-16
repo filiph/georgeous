@@ -19,8 +19,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@android:layout/list_content" />
-    
-    
+
+    <include
+        android:id="@+id/george_greeter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/george_big_face"
+        android:visibility="gone" />
 
 </RelativeLayout>
     

@@ -9,40 +9,45 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" 
-		    android:orientation="horizontal"
-        android:baselineAligned="false">
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:orientation="horizontal" >
 
-	    <FrameLayout
-	        android:id="@+id/list_pane"
-	        android:layout_width="0dp"
-	        android:layout_height="match_parent"
-	        android:layout_weight="2" >
-	
-	        <fragment
-	            android:id="@+id/article_list_fragment"
-	            android:name="net.filiph.georgeous.ArticleListFragment"
-	            android:layout_width="match_parent"
-	            android:layout_height="fill_parent"
-	            tools:layout="@android:layout/list_content" />
-	
-	    </FrameLayout>
-	
-	    <FrameLayout
-	        android:id="@+id/article_pane"
-	        android:layout_width="0dp"
-	        android:layout_height="match_parent"
-	        android:layout_weight="3" >
-	
-	        <fragment
-	            android:id="@+id/article_display_fragment"
-	            android:name="net.filiph.georgeous.ArticleDisplayFragment"
-	            android:layout_width="match_parent"
-	            android:layout_height="fill_parent"
-	            tools:layout="@layout/display_article_fragment" />
-	
-	    </FrameLayout>
-        
+        <FrameLayout
+            android:id="@+id/list_pane"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2" >
+
+            <fragment
+                android:id="@+id/article_list_fragment"
+                android:name="net.filiph.georgeous.ArticleListFragment"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                tools:layout="@android:layout/list_content" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/article_pane"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3" >
+
+            <fragment
+                android:id="@+id/article_display_fragment"
+                android:name="net.filiph.georgeous.ArticleDisplayFragment"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                tools:layout="@layout/display_article_fragment" />
+        </FrameLayout>
     </LinearLayout>
+
+    <include
+        android:id="@+id/george_greeter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/george_big_face"
+        android:visibility="gone" />
+
 </RelativeLayout>
 

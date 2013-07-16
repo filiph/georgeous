@@ -26,7 +26,7 @@
     <string name="more_info_dummy">May 27, 2013</string>
     <string name="article_title_dummy">An interesting article title which is also a dummy text</string>
     <string name="dummy_article_content">A dummy article content</string>
-    <string name="loading">“Oh hi, looking good today! Let me fetch your articles for you.”</string>
+    <string name="loading">“Oh hi, looking good today!\nLet me fetch your articles for you.”</string>
     <string name="george_face_description">George\'s handsome face</string>
     <string name="menu_clear">Clear offline data</string>
     <string name="no_new_articles_toast">“There are no new articles on the web. Just checked.”</string>

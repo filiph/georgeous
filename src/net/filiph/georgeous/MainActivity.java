@@ -84,10 +84,10 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		
 		if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
 			// The user has opened Georgeous for the first time.
-			hideArticlesShowGeorge();
+			showGeorgeGreeter();
 			mGeorgeAppearedTime = System.currentTimeMillis();
 		} else if (mGeorgeFragment != null) {
-			removeGeorge();
+			removeGeorgeGreeter();
 		}
 		
 		notifyArticleListDatasetChanged();
@@ -105,26 +105,14 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 //		});
 	}
 	
-	private void removeGeorge() {
-//		assert(mGeorgeFragment != null);
-//		Log.v(TAG, "Removing George. Bye, gorgeous.");
-//		FrameLayout container = (FrameLayout) findViewById(R.id.george_fragment_view);
-//		if (mGeorgeFragment.isVisible()) {
-//			collapse(container, mGeorgeFragment);
-//		}
+	private void removeGeorgeGreeter() {
+		View georgeGreeter = findViewById(R.id.george_greeter);
+		georgeGreeter.setVisibility(View.GONE);
 	}
 
-	private void hideArticlesShowGeorge() {
-//		if (mGeorgeFragment == null) {
-//			mGeorgeFragment = new GeorgeFragment();
-//		}
-//		Log.v(TAG, "Hiding articles, showing George! Hi!");
-//		FrameLayout container = (FrameLayout) findViewById(R.id.george_fragment_view);
-//		container.setVisibility(FrameLayout.VISIBLE);
-//		FragmentTransaction ft = getFragmentManager().beginTransaction();
-//		ft.add(R.id.george_fragment_view, mGeorgeFragment);
-//		ft.commit();
-//		Log.v(TAG, "Articles hid, George shown!");
+	private void showGeorgeGreeter() {
+		View georgeGreeter = findViewById(R.id.george_greeter);
+		georgeGreeter.setVisibility(View.VISIBLE);
 	}
 	
 	@Override
@@ -227,13 +215,13 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 				Log.v(TAG, "First time visitor has new articles.");
 				long current = System.currentTimeMillis();
 				if (current - mGeorgeAppearedTime > MIN_TIME_TO_SHOW_GEORGE) {
-					removeGeorge();
+					removeGeorgeGreeter();
 				} else {
 					// Delay execution.
 					new Handler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							removeGeorge();
+							removeGeorgeGreeter();
 						}
 					}, MIN_TIME_TO_SHOW_GEORGE - (current - mGeorgeAppearedTime));
 				}

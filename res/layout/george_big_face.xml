@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/background_light"
     android:orientation="vertical"
     tools:context=".ArticleDisplayFragment" >
 
@@ -33,6 +34,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:text="@string/loading"
+        android:textAllCaps="false"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="@dimen/large_header" />
 
