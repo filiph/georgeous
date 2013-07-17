@@ -121,7 +121,7 @@ public class AtomParser {
     final static SimpleDateFormat inputParser = new SimpleDateFormat(format, 
     		Locale.US);
     
-    final static SimpleDateFormat humanOutputParser = new SimpleDateFormat("MMMMM d", Locale.US);
+    final static SimpleDateFormat humanOutputParser = new SimpleDateFormat("MMMM d", Locale.US);
     
     private static Date getPublishedDate(Article article) {
     	Date date = null;
