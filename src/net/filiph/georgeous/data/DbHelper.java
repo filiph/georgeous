@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DbHelper extends SQLiteOpenHelper {
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 	private static final String DATABASE_NAME = "feeddatabase";
 	public static final String ARTICLE_TABLE_NAME = "articles";
 	public static final String KEY_TITLE = "title";
@@ -18,6 +18,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	public static final String KEY_UPDATED_TIMESTAMP = "updated_timestamp";
 	public static final String KEY_READCOUNT = "readcount";
 	public static final String KEY_CATEGORIES = "categories";
+	public static final String KEY_HUMAN_INFO = "human_info";
 	public static final String KEY_ID = "_id";
 	private static final String ARTICLE_TABLE_CREATE = "CREATE TABLE " + 
 			ARTICLE_TABLE_NAME + " (" +
@@ -29,6 +30,7 @@ public class DbHelper extends SQLiteOpenHelper {
 			KEY_PUBLISHED_TIMESTAMP + " TEXT, " +
 			KEY_UPDATED_TIMESTAMP + " TEXT, " +
 			KEY_CATEGORIES + " TEXT, " +
+			KEY_HUMAN_INFO + " TEXT, " +
 			KEY_READCOUNT + " INTEGER, " +
 			KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT);";
 	
@@ -42,6 +44,7 @@ public class DbHelper extends SQLiteOpenHelper {
 		values.put(DbHelper.KEY_THUMBNAIL_URL, article.thumbnail_url);
 		values.put(DbHelper.KEY_PUBLISHED_TIMESTAMP, article.published_timestamp);
 		values.put(DbHelper.KEY_UPDATED_TIMESTAMP, article.updated_timestamp);
+		values.put(DbHelper.KEY_HUMAN_INFO, article.human_info);
 		return values;
 	}
 	

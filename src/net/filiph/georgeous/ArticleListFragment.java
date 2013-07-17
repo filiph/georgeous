@@ -57,7 +57,7 @@ public class ArticleListFragment extends ListFragment implements
 		super.onCreate(savedInstanceState);
 		this.setRetainInstance(true);
 
-		String[] fromColumns = { DbHelper.KEY_TITLE, DbHelper.KEY_CANONICAL_URL };
+		String[] fromColumns = { DbHelper.KEY_TITLE, DbHelper.KEY_HUMAN_INFO };
 		int[] toViews = { R.id.article_in_list_title, R.id.more_info };
 
 		mAdapter = new SimpleCursorAdapter(getActivity(),

@@ -2,14 +2,19 @@ package net.filiph.georgeous.background;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import net.filiph.georgeous.data.Article;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.util.Log;
 import android.util.Xml;
 
 /**
@@ -89,13 +94,49 @@ public class AtomParser {
                 skip(parser);
             }
         }
+        
+        article.human_info = buildHumanReadableInfoString(article);
         return article;
+    }
+
+    private static String buildHumanReadableInfoString(Article article) {
+    	StringBuilder strBuilder = new StringBuilder();
+
+    	Date date = getPublishedDate(article);
+    	if (date != null) {
+    		strBuilder.append(humanOutputParser.format(date));
+    	}
+    	if (date != null && article.author_guess != null) {
+    		strBuilder.append(", ");
+    	}
+    	if (article.author_guess != null) {
+    		strBuilder.append(article.author_guess);
+    	}
+    	
+    	return strBuilder.toString();
+    }
+    
+    // 2013-06-03T10:14:00.000-07:00
+    final static String format = "yyyy-MM-dd";
+    final static SimpleDateFormat inputParser = new SimpleDateFormat(format, 
+    		Locale.US);
+    
+    final static SimpleDateFormat humanOutputParser = new SimpleDateFormat("MMMMM d", Locale.US);
+    
+    private static Date getPublishedDate(Article article) {
+    	Date date = null;
+    	try {
+			date = inputParser.parse(article.published_timestamp.trim().substring(0, format.length()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+    	return date;
     }
     
     private static final String POSTED_BY_STRING = "Posted by";
     private static final int MAX_CHARS_WALKED = 400;
     private static final int MAX_CHARS_IN_NAME = 40;
-    
+	private static final String TAG = "AtomParser";
     
     private static String guessAuthor(String content) {
     	String guess = null;
@@ -110,7 +151,7 @@ public class AtomParser {
     	// First pass: name is in an <a> tag
     	int endATag = localContent.indexOf("</a>");
     	if (endATag != -1) {
-    		int startATag = localContent.indexOf(">", start);
+    		int startATag = localContent.indexOf(">");
     		if (startATag + 1 < endATag) {
     			guess = localContent.substring(startATag + 1, endATag).trim();
     			if (guess.indexOf("<") == -1 && guess.length() <= MAX_CHARS_IN_NAME) {  // basic check
@@ -126,6 +167,9 @@ public class AtomParser {
     			return guess;
     		}
     	}
+    	
+    	Log.v(TAG, "Couldn't find author");
+    	Log.v(TAG, "start = " + start + ", endATag = " + endATag + ", comma = " + comma);
     	
     	return null;
     }
