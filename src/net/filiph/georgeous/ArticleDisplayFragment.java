@@ -129,8 +129,12 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		// If the user has scrolled already, it means there was time for getting images (maybe before
+		// an orientation change?). So let's not do the two-pass thing now.
+		boolean loadImagesOnFirstPass = mYRelativePosition != 0f;
+		
 		// Use AsyncTask to parse the HTML content and add images.
-		new ArticleDisplayTask(mArticleId, false).execute(data);
+		new ArticleDisplayTask(mArticleId, loadImagesOnFirstPass).execute(data);
 	}
 
 	@Override
