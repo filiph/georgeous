@@ -82,6 +82,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		
 		if (findViewById(R.id.article_pane) != null) {
 			mTwoPane = true;
+			invalidateOptionsMenu();
 			
 			// In two-pane mode, list items should be given the
 			// 'activated' state when touched.
@@ -111,6 +112,19 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 //		});
 	}
 	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+	    MenuItem shareItem = menu.findItem(R.id.menu_share);
+	    shareItem.setVisible(mTwoPane);
+	    // TODO enabled according to article shown
+	    
+	    MenuItem refreshItem = menu.findItem(R.id.menu_refresh);
+	    refreshItem.setVisible(!mPrefs.getBoolean(CHECK_IN_PROGRESS, false));
+	    
+	    super.onPrepareOptionsMenu(menu);
+	    return true;
+	}
+	
 	private void fadeOutGeorgeGreeter() {
 		mGeorgeGreeter.animate()
 			.alpha(0f)
@@ -121,10 +135,6 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 					mGeorgeGreeter.setVisibility(View.GONE);
 				}
 			});
-	}
-	
-	private void removeGeorgeGreeter() {
-		mGeorgeGreeter.setVisibility(View.GONE);
 	}
 	
 	private void showGeorgeGreeter() {
@@ -143,7 +153,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	}
 	
 	public boolean onMenuRefreshClick(MenuItem item) {
-		return false;
+		sendArticleListRefreshIntent();
+		return true;
 	}
 	
 	public boolean onMenuClearClick(MenuItem item) {
@@ -178,19 +189,26 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		
 		if (!mPrefs.getBoolean(CHECK_IN_PROGRESS, false) &&
 				System.currentTimeMillis() - mPrefs.getLong(LAST_CHECK_FINISHED_TIME, 0) > MIN_TIME_BETWEEN_FEED_DOWNLOADS) {
-			// Start the background service via an intent. 
-			Intent refresh = new Intent(this, ReaderFeedService.class);
-			refresh.setAction(Constants.GET_ARTICLES_INTENT);
-			startService(refresh);
-			
-			mPrefs.edit().putBoolean(CHECK_IN_PROGRESS, true).commit();
-			
-			setProgressBarIndeterminateVisibility(true);
+			sendArticleListRefreshIntent();
 			Log.v(TAG, "Starting background process to check for new articles.");
 		} else {
 			Log.v(TAG, "Checked recently or checking already in progress.");
+			invalidateOptionsMenu();
 		}
 		
+	}
+
+	/**
+	 * Start the background service via an intent. 
+	 */
+	public void sendArticleListRefreshIntent() {
+		Intent refresh = new Intent(this, ReaderFeedService.class);
+		refresh.setAction(Constants.GET_ARTICLES_INTENT);
+		startService(refresh);
+		
+		setProgressBarIndeterminateVisibility(true);
+		mPrefs.edit().putBoolean(CHECK_IN_PROGRESS, true).commit();
+		invalidateOptionsMenu();
 	}
 	
 	
@@ -235,7 +253,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			int feedResult = intent.getIntExtra(Constants.FEED_RESULT_CODE, 0);
 			Log.v(TAG, "The service says: '" + feedResult + "'. Yay!");
 			
-			if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
+			if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {   // TODO: read mPrefs only on load, not on UI thread
 				Log.v(TAG, "First time visitor has new articles.");
 				long current = System.currentTimeMillis();
 				if (current - mGeorgeAppearedTime > MIN_TIME_TO_SHOW_GEORGE) {
@@ -265,6 +283,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			.putBoolean(CHECK_IN_PROGRESS, false)
 			.commit();
 			
+			invalidateOptionsMenu();
 			setProgressBarIndeterminateVisibility(false);
 		}
 	}
@@ -287,45 +306,6 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	    toast.show();
 	}
 	
-	/**
-	 * Visually collapses a view via an animation and then sets its visibility to GONE.
-	 * TODO: http://developer.android.com/guide/topics/resources/animation-resource.html
-	 * @param v		The view to collapse. 
-	 */
-	private void collapse(final View v, final Fragment fragmentToRemove) {
-	    final int initialHeight = v.getMeasuredHeight();
-	    final int startHeight = initialHeight / 2;  // Start animation already 50% in.
-
-	    if (fragmentToRemove != null) {
-    		FragmentManager fm = getFragmentManager();
-    		FragmentTransaction ft = fm.beginTransaction();
-    		ft.remove(fragmentToRemove);
-    		ft.commit();
-	    }
-	    
-	    Animation a = new Animation()
-	    {
-	        @Override
-	        protected void applyTransformation(float interpolatedTime, Transformation t) {
-	            if (interpolatedTime == 1){
-	                v.setVisibility(View.GONE);
-	            } else {
-	                v.getLayoutParams().height = (int)(startHeight) - (int)(startHeight * interpolatedTime);
-	                v.requestLayout();
-	            }
-	        }
-
-	        @Override
-	        public boolean willChangeBounds() {
-	            return true;
-	        }
-	    };
-
-	    // 1dp/ms
-	    a.setDuration((int)(startHeight / v.getContext().getResources().getDisplayMetrics().density));
-	    v.startAnimation(a);
-	}
-
 	public void notifyArticleListDatasetChanged() {
 		Log.v(TAG, "Notifying on dataset changed.");
 		ArticleListFragment articleListFragment = 

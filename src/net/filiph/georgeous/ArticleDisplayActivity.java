@@ -50,5 +50,15 @@ public class ArticleDisplayActivity extends Activity {
 	public boolean onMenuShareClick(MenuItem item) {
 		return false;
 	}
+	
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+	    MenuItem shareItem = menu.findItem(R.id.menu_share);
+	    shareItem.setVisible(true);  // TODO enable according to article loaded or not.
+	    
+	    super.onPrepareOptionsMenu(menu);
+	    return true;
+	}
 
 }

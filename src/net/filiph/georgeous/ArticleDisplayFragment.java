@@ -1,5 +1,7 @@
 package net.filiph.georgeous;
 
+import java.security.InvalidAlgorithmParameterException;
+
 import net.filiph.georgeous.data.BlankImageGetter;
 import net.filiph.georgeous.data.DbHelper;
 import net.filiph.georgeous.data.FeedProvider;
@@ -244,7 +246,12 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 				if (titleView != null && contentView != null && progressCircle != null) {
 					titleView.setText(title);
 					contentView.setMovementMethod(LinkMovementMethod.getInstance());
-					contentView.setText(content);
+					try {
+						contentView.setText(content);
+					} catch (Exception e) {
+						// A bug on Jelly Bean: https://code.google.com/p/android/issues/detail?id=34872
+						e.printStackTrace();
+					}
 					progressCircle.setVisibility(ProgressBar.GONE);
 					mScrollView.post(new Runnable() {
 			            public void run() {
