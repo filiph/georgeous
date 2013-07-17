@@ -31,7 +31,7 @@
     <string name="menu_clear">Clear offline data</string>
     <string name="menu_refresh">Refresh articles</string>
     <string name="menu_share">Share article</string>
-    <string name="no_new_articles_toast">“There are no new articles on the web. Just checked.”</string>
+    <string name="no_new_articles_toast">“There are no new articles on the web. Those slackers!”</string>
     <string name="call_to_select_article">“You can use your attractive fingers to select an article on the left.”</string>
 
 </resources>

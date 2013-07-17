@@ -41,6 +41,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	public static final long MIN_TIME_TO_SHOW_GEORGE = 5000;
 	
 	private SharedPreferences mPrefs;
+	private boolean mCheckInProgress = false;
 	
 	private long mLatestArticleId = -1;
 	
@@ -95,6 +96,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			// The user has opened Georgeous for the first time.
 			showGeorgeGreeter();
 			mGeorgeAppearedTime = System.currentTimeMillis();
+			sendArticleListRefreshIntent();
 		}
 		
 		notifyArticleListDatasetChanged();
@@ -119,7 +121,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	    // TODO enabled according to article shown
 	    
 	    MenuItem refreshItem = menu.findItem(R.id.menu_refresh);
-	    refreshItem.setVisible(!mPrefs.getBoolean(CHECK_IN_PROGRESS, false));
+	    refreshItem.setVisible(!mCheckInProgress);
 	    
 	    super.onPrepareOptionsMenu(menu);
 	    return true;
@@ -164,7 +166,6 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		mPrefs.edit()
 		.putBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)
 		.putLong(LAST_CHECK_FINISHED_TIME, 0)
-		.putBoolean(CHECK_IN_PROGRESS, false)  // TODO: actually make sure it's not in progress
 		.commit();
 		
 		notifyArticleListDatasetChanged();
@@ -187,11 +188,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 
 		// TODO: check if CHECK_IN_PROGRESS hasn't been set for way too long -> if so, release
 		
-		if (!mPrefs.getBoolean(CHECK_IN_PROGRESS, false) &&
-				System.currentTimeMillis() - mPrefs.getLong(LAST_CHECK_FINISHED_TIME, 0) > MIN_TIME_BETWEEN_FEED_DOWNLOADS) {
-			sendArticleListRefreshIntent();
-			Log.v(TAG, "Starting background process to check for new articles.");
-		} else {
+		if (mCheckInProgress) {
 			Log.v(TAG, "Checked recently or checking already in progress.");
 			invalidateOptionsMenu();
 		}
@@ -207,7 +204,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		startService(refresh);
 		
 		setProgressBarIndeterminateVisibility(true);
-		mPrefs.edit().putBoolean(CHECK_IN_PROGRESS, true).commit();
+		mCheckInProgress = true;
 		invalidateOptionsMenu();
 	}
 	
@@ -253,6 +250,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			int feedResult = intent.getIntExtra(Constants.FEED_RESULT_CODE, 0);
 			Log.v(TAG, "The service says: '" + feedResult + "'. Yay!");
 			
+			boolean willInvalidateOptionsMenuLater = false;
 			if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {   // TODO: read mPrefs only on load, not on UI thread
 				Log.v(TAG, "First time visitor has new articles.");
 				long current = System.currentTimeMillis();
@@ -264,8 +262,11 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 						@Override
 						public void run() {
 							fadeOutGeorgeGreeter();
+							invalidateOptionsMenu();
+							setProgressBarIndeterminateVisibility(false);
 						}
 					}, MIN_TIME_TO_SHOW_GEORGE - (current - mGeorgeAppearedTime));
+					willInvalidateOptionsMenuLater = true;
 				}
 				notifyArticleListDatasetChanged();
 				mPrefs.edit().putBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, true).commit();
@@ -280,11 +281,14 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			mLastCheckTime = System.currentTimeMillis();
 			mPrefs.edit()
 			.putLong(LAST_CHECK_FINISHED_TIME, mLastCheckTime)
-			.putBoolean(CHECK_IN_PROGRESS, false)
 			.commit();
 			
-			invalidateOptionsMenu();
-			setProgressBarIndeterminateVisibility(false);
+			mCheckInProgress = false;
+			
+			if (!willInvalidateOptionsMenuLater) {
+				invalidateOptionsMenu();
+				setProgressBarIndeterminateVisibility(false);
+			}
 		}
 	}
 	
