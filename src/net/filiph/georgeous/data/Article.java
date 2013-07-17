@@ -1,6 +1,10 @@
 package net.filiph.georgeous.data;
 
 public class Article {
+	
+	public Article() {
+	}
+	
 	public Article(String title, String content, String canonical_url, String thumbnail_url) {
 		this.title = title;
 		this.content = content;
@@ -13,10 +17,8 @@ public class Article {
 	public String author_guess;
 	public String thumbnail_url;
 	public String canonical_url;
-	public String created_timestamp;
+	public String published_timestamp;
 	public String updated_timestamp;
-	public int readcount;
+	public int readcount = 0;
 	public String[] categories;
-
-	// TODO: implement getters and make this into an upstanding java class
 }

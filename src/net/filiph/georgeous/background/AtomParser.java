@@ -53,84 +53,115 @@ public class AtomParser {
         return entries;
     }
 
-    // This class represents a single entry (post) in the XML feed.
-    // It includes the data members "title," "link," and "summary."
-    public static class Entry {
-        public final String title;
-        public final String link;
-        public final String summary;
-
-        private Entry(String title, String summary, String link) {
-            this.title = title;
-            this.summary = summary;
-            this.link = link;
-        }
-    }
-
     // Parses the contents of an entry. If it encounters a title, summary, or link tag, hands them
     // off
     // to their respective &quot;read&quot; methods for processing. Otherwise, skips the tag.
     private static Article readEntry(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "entry");
-        String title = null;
-        String content = null;
-        String canonical_url = null;
-        String thumbnail_url = null;
+        Article article = new Article();
+        // TODO: categories
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
             if (name.equals("title")) {
-                title = readTitle(parser).trim();
+            	article.title = readTagContent(parser, "title").trim();
             } else if (name.equals("content")) {
-                content = readContent(parser);
+            	article.content = readTagContent(parser, "content");
+            	article.author_guess = guessAuthor(article.content);
+            } else if (name.equals("published")) {
+            	article.published_timestamp = readTagContent(parser, "published");
+            } else if (name.equals("updated")) {
+            	article.updated_timestamp = readTagContent(parser, "updated");
             } else if (name.equals("media:thumbnail")) {
-                thumbnail_url = readThumbnailUrl(parser);
+            	article.thumbnail_url = readTagAttribute(parser, "media:thumbnail", "url");
+            } else if (name.equals("link")) {
+            	String linkRel = readLinkRel(parser);
+            	if (linkRel != null) {
+            		article.canonical_url = linkRel;
+            	}
             } else if (name.equals("feedburner:origLink")) {
-            	canonical_url = readOrigLink(parser);
+            	// Origlink seems to be the last tag in <entry> and it's a much better URL than <link rel="alternate">. So if we have it
+            	// let's go ahead and overwrite.
+            	article.canonical_url = readTagContent(parser, "feedburner:origLink");
             } else {
                 skip(parser);
             }
         }
-        return new Article(title, content, canonical_url, thumbnail_url);
+        return article;
+    }
+    
+    private static final String POSTED_BY_STRING = "Posted by";
+    private static final int MAX_CHARS_WALKED = 400;
+    private static final int MAX_CHARS_IN_NAME = 40;
+    
+    
+    private static String guessAuthor(String content) {
+    	String guess = null;
+    	int maxChars = Math.min(content.length(), MAX_CHARS_WALKED);
+    	int i = content.indexOf(POSTED_BY_STRING);
+    	if (i == -1) {
+    		return null;
+    	}
+    	int start = i + POSTED_BY_STRING.length() + 1;
+    	final String localContent = content.substring(start, maxChars);
+    	i = start;
+    	// First pass: name is in an <a> tag
+    	int endATag = localContent.indexOf("</a>");
+    	if (endATag != -1) {
+    		int startATag = localContent.indexOf(">", start);
+    		if (startATag + 1 < endATag) {
+    			guess = localContent.substring(startATag + 1, endATag).trim();
+    			if (guess.indexOf("<") == -1 && guess.length() <= MAX_CHARS_IN_NAME) {  // basic check
+    				return guess;
+    			}
+    		}
+    	}
+    	// Second pass: name is not in a tag
+    	int comma = localContent.indexOf(",");
+    	if (comma != -1) {
+    		guess = localContent.substring(0, comma).trim();
+    		if (guess.indexOf("<") == -1 && guess.length() <= MAX_CHARS_IN_NAME) {  // basic check
+    			return guess;
+    		}
+    	}
+    	
+    	return null;
     }
 
-    // Processes title tags in the feed.
-    private static String readTitle(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "title");
-        String title = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "title");
-        return title;
+    private static String readTagContent(XmlPullParser parser, String tagName) throws IOException, XmlPullParserException {
+    	parser.require(XmlPullParser.START_TAG, ns, tagName);
+    	String content = readText(parser);
+    	parser.require(XmlPullParser.END_TAG, ns, tagName);
+    	return content;
     }
-
-    // Processes feedburner urls in the feed.
-    private static String readOrigLink(XmlPullParser parser) throws IOException, XmlPullParserException {
-    	parser.require(XmlPullParser.START_TAG, ns, "feedburner:origLink");
-    	String title = readText(parser);
-    	parser.require(XmlPullParser.END_TAG, ns, "feedburner:origLink");
-    	return title;
-    }
-
-    // Processes link tags in the feed.
-    private static String readThumbnailUrl(XmlPullParser parser) throws IOException, XmlPullParserException {
-        String url = "";
-        parser.require(XmlPullParser.START_TAG, ns, "media:thumbnail");
+    
+    private static String readTagAttribute(XmlPullParser parser, String tagName, String attrName) throws IOException, XmlPullParserException {
+        String value = null;
+        parser.require(XmlPullParser.START_TAG, ns, tagName);
         String tag = parser.getName();
-        if (tag.equals("media:thumbnail")) {
-            url = parser.getAttributeValue(null, "url");
+        if (tag.equals(tagName)) {
+        	value = parser.getAttributeValue(null, attrName);
             parser.nextTag();
         }
-        parser.require(XmlPullParser.END_TAG, ns, "media:thumbnail");
-        return url;
+        parser.require(XmlPullParser.END_TAG, ns, tagName);
+        return value;
     }
-
-    // Processes summary tags in the feed.
-    private static String readContent(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, "content");
-        String content = readText(parser);
-        parser.require(XmlPullParser.END_TAG, ns, "content");
-        return content;
+    
+    // Processes link tag in the feed and, if it is 'link rel', saves the href.
+    private static String readLinkRel(XmlPullParser parser) throws IOException, XmlPullParserException {
+        String url = null;
+        parser.require(XmlPullParser.START_TAG, ns, "link");
+        String tag = parser.getName();
+        if (tag.equals("link")) {
+        	if (parser.getAttributeValue(null, "rel").equals("alternate")) {
+        		url = parser.getAttributeValue(null, "href");
+        	}
+            parser.nextTag();
+        }
+        parser.require(XmlPullParser.END_TAG, ns, "link");
+        return url;
     }
 
     // For the tags title and summary, extracts their text values.
