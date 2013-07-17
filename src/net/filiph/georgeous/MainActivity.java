@@ -186,12 +186,9 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		LocalBroadcastManager.getInstance(this).registerReceiver(
 				mReceiver, receiverIntentFilter);
 
-		// TODO: check if CHECK_IN_PROGRESS hasn't been set for way too long -> if so, release
-		
-		if (mCheckInProgress) {
-			Log.v(TAG, "Checked recently or checking already in progress.");
-			invalidateOptionsMenu();
-		}
+		mCheckInProgress = false;  // The return intent may have arrived in the meantime. Let's not prevent user from hitting refresh again.
+		setProgressBarIndeterminateVisibility(false);
+		invalidateOptionsMenu();
 		
 	}
 

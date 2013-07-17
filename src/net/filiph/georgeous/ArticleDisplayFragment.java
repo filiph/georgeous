@@ -17,7 +17,9 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +38,13 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 	
 	private ScrollView mScrollView;
 	private float mYRelativePosition = 0f;
+	
+	/**
+	 * The fragment is showing the current article in the first pass (usually without images). It is OK
+	 * to scroll to a previously saved position automatically (user hasn't had the chance to scroll
+	 * themselves yet).
+	 */
+	private boolean mFirstPass = true;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -131,6 +140,8 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		mFirstPass = true;  // This came from the loader, so this must be the first pass.
+		
 		// If the user has scrolled already, it means there was time for getting images (maybe before
 		// an orientation change?). So let's not do the two-pass thing now.
 		boolean loadImagesOnFirstPass = mYRelativePosition != 0f;
@@ -241,26 +252,32 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 				CharSequence title = strings[0];
 				CharSequence content = strings[1];
 				TextView titleView = (TextView) getActivity().findViewById(R.id.article_display_title);
-				TextView contentView = (TextView) getActivity().findViewById(R.id.article_content);
+				JellyBeanSpanFixTextView contentView = (JellyBeanSpanFixTextView) getActivity().findViewById(R.id.article_content);
 				ProgressBar progressCircle = (ProgressBar) getActivity().findViewById(R.id.progress_circle);
 				if (titleView != null && contentView != null && progressCircle != null) {
 					titleView.setText(title);
 					contentView.setMovementMethod(LinkMovementMethod.getInstance());
 					try {
-						contentView.setText(content);
-					} catch (Exception e) {
-						// A bug on Jelly Bean: https://code.google.com/p/android/issues/detail?id=34872
+						((JellyBeanSpanFixTextView) contentView).setText(content);
+					} catch (IndexOutOfBoundsException e) {
+						// Hmm, I guess the JellyBeanSpanFixTextView hasn't fixed this for all.
 						e.printStackTrace();
+						contentView.setText(content.toString());
+						// TODO: Apologize to the user?
 					}
 					progressCircle.setVisibility(ProgressBar.GONE);
-					mScrollView.post(new Runnable() {
-			            public void run() {
-			            	mScrollView.setScrollY((int) (mScrollView.getMaxScrollAmount() * mYRelativePosition));
-			            }
-			        });
+					if (mFirstPass) {
+						mScrollView.post(new Runnable() {
+							public void run() {
+								// Good enough for now. TODO better.
+								mScrollView.setScrollY((int) (mScrollView.getMaxScrollAmount() * mYRelativePosition));
+							}
+						});
+					}
 					
 					if (!mGetImages) {
 						// Go again, this time with images.
+						mFirstPass = false;
 						new ArticleDisplayTask(mLoadingArticleId, true, this.title, contentHtml).execute();
 					}
 				} else {
