@@ -14,8 +14,8 @@ public class DbHelper extends SQLiteOpenHelper {
 	public static final String KEY_CANONICAL_URL = "canonical_url";
 	public static final String KEY_AUTHOR_GUESS = "author_guess";
 	public static final String KEY_THUMBNAIL_URL = "thumbnail_url";
-	public static final String KEY_TIMESTAMP_CREATED = "created_timestamp";
-	public static final String KEY_TIMESTAMP_UPDATED = "updated_timestamp";
+	public static final String KEY_PUBLISHED_TIMESTAMP = "created_timestamp";
+	public static final String KEY_UPDATED_TIMESTAMP = "updated_timestamp";
 	public static final String KEY_READCOUNT = "readcount";
 	public static final String KEY_CATEGORIES = "categories";
 	public static final String KEY_ID = "_id";
@@ -26,8 +26,8 @@ public class DbHelper extends SQLiteOpenHelper {
 			KEY_CANONICAL_URL + " TEXT UNIQUE NOT NULL, " +
 			KEY_AUTHOR_GUESS + " TEXT, " +
 			KEY_THUMBNAIL_URL + " TEXT, " +
-			KEY_TIMESTAMP_CREATED + " TEXT, " +
-			KEY_TIMESTAMP_UPDATED + " TEXT, " +
+			KEY_PUBLISHED_TIMESTAMP + " TEXT, " +
+			KEY_UPDATED_TIMESTAMP + " TEXT, " +
 			KEY_CATEGORIES + " TEXT, " +
 			KEY_READCOUNT + " INTEGER, " +
 			KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT);";
@@ -37,8 +37,11 @@ public class DbHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(DbHelper.KEY_TITLE, article.title);
 		values.put(DbHelper.KEY_CONTENT, article.content);
+		values.put(DbHelper.KEY_AUTHOR_GUESS, article.author_guess);
 		values.put(DbHelper.KEY_CANONICAL_URL, article.canonical_url);
 		values.put(DbHelper.KEY_THUMBNAIL_URL, article.thumbnail_url);
+		values.put(DbHelper.KEY_PUBLISHED_TIMESTAMP, article.published_timestamp);
+		values.put(DbHelper.KEY_UPDATED_TIMESTAMP, article.updated_timestamp);
 		return values;
 	}
 	
