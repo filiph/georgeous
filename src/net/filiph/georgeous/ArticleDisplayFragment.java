@@ -27,7 +27,7 @@ import android.widget.TextView;
 
 public class ArticleDisplayFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "ArticleDisplayFragment";
-	private static final int ARTICLE_DISPLAY_ID = 1;
+	private static final int ARTICLE_DISPLAY_LOADER_ID = 1;
 	private static final String SAVED_ARTICLE_ID = "SAVED_ARTICLE_ID";
 	private static final String SAVED_Y_POSITION = "SAVED_Y_POSITION";
 	private long mArticleId = -1;
@@ -69,7 +69,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 
 			if (mArticleId != -1) {
 				removeGeorgePlaceholder();
-				getLoaderManager().initLoader(ARTICLE_DISPLAY_ID, null, this);
+				getLoaderManager().initLoader(ARTICLE_DISPLAY_LOADER_ID, null, this);
 			} else {
 				ProgressBar progressCircle = (ProgressBar) getActivity().findViewById(R.id.progress_circle);
 				progressCircle.setVisibility(ProgressBar.GONE);
@@ -115,7 +115,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 		progressCircle.setVisibility(ProgressBar.VISIBLE);
 
 		// Ask loader to fetch the article from SQLite.
-		getLoaderManager().restartLoader(ARTICLE_DISPLAY_ID, null, this);
+		getLoaderManager().restartLoader(ARTICLE_DISPLAY_LOADER_ID, null, this);
 	}
 	
 	private int getWidth() {

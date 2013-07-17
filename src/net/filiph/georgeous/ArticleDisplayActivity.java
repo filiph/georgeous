@@ -46,5 +46,9 @@ public class ArticleDisplayActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	public boolean onMenuShareClick(MenuItem item) {
+		return false;
+	}
 
 }

@@ -1,10 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
+
+    <item android:id="@+id/menu_refresh"
+          android:icon="@drawable/navigation_refresh"
+          android:title="@string/menu_refresh"
+          android:onClick="onMenuRefreshClick"
+          android:showAsAction="ifRoom" />
+    
+    <item android:id="@+id/menu_share"
+          android:icon="@drawable/social_share"
+          android:title="@string/menu_share"
+          android:onClick="onMenuShareClick"
+          android:showAsAction="ifRoom"
+          android:visible="false" />
+    
     <item android:id="@+id/menu_clear"
-          android:icon="@android:drawable/ic_menu_delete"
+          android:icon="@drawable/content_discard"
           android:title="@string/menu_clear"
           android:onClick="onMenuClearClick"
-          android:showAsAction="ifRoom|withText" />
+          android:showAsAction="never" />
     
 <!--     <item
         android:id="@+id/action_settings"

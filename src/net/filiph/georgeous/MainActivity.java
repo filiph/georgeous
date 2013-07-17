@@ -87,6 +87,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			// 'activated' state when touched.
 			((ArticleListFragment) getFragmentManager().findFragmentById(
 					R.id.article_list_fragment)).setActivateOnItemClick(true);
+			
 		}
 		
 		if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
@@ -135,6 +136,14 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.list_articles, menu);
 		return true;
+	}
+	
+	public boolean onMenuShareClick(MenuItem item) {
+		return false;
+	}
+	
+	public boolean onMenuRefreshClick(MenuItem item) {
+		return false;
 	}
 	
 	public boolean onMenuClearClick(MenuItem item) {
