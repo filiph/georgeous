@@ -1,7 +1,7 @@
 package net.filiph.georgeous;
 
-import java.security.InvalidAlgorithmParameterException;
-
+import net.filiph.georgeous.ArticleListFragment.Callbacks;
+import net.filiph.georgeous.data.Article;
 import net.filiph.georgeous.data.BlankImageGetter;
 import net.filiph.georgeous.data.DbHelper;
 import net.filiph.georgeous.data.FeedProvider;
@@ -17,9 +17,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
-import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -108,7 +106,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 		if (mArticleId == -1) {
 			throw new IllegalStateException("onCreateLoader called, but mArticleId is invalid");
 		} else {
-			return new CursorLoader(getActivity(), FeedProvider.getArticleByIdUri(mArticleId), null, null,
+			return new CursorLoader(getActivity(), FeedProvider.getArticleByIdUri(mArticleId), null, null,  // TODO: selection!
 					null, null);
 		}
 	}
@@ -155,13 +153,57 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		Log.v(TAG, "Saving instance state.");
 		outState.putLong(SAVED_ARTICLE_ID, mArticleId);
 		outState.putFloat(SAVED_Y_POSITION, mYRelativePosition);
+	}
+	
+	public interface ArticleShownListener {
+		public void onArticleShow(String url);
+		public void onArticleHide();
+	}
+	
+	private static ArticleShownListener sDummyCallbacks = new ArticleShownListener() {
+
+		@Override
+		public void onArticleShow(String url) {
+			Log.w(TAG, "Article shown but no proper callback was setup.");
+		}
+
+		@Override
+		public void onArticleHide() {
+			Log.w(TAG, "Article hidden but no proper callback was setup.");
+		}
+		
+	};
+	
+	private ArticleShownListener mCallbacks = sDummyCallbacks;
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		// Activities containing this fragment must implement its callbacks.
+		if (!(activity instanceof ArticleShownListener)) {
+			throw new IllegalStateException(
+					"Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (ArticleShownListener) activity;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		
+		mCallbacks.onArticleHide();
+
+		// Reset the active callbacks interface to the dummy implementation.
+		mCallbacks = sDummyCallbacks;
 	}
 	
 	private class ArticleDisplayTask extends AsyncTask<Cursor, Void, CharSequence[]> {
@@ -173,6 +215,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 		private final boolean mGetImages;
 		private String title;
 		private String contentHtml;
+		private String url;
 		private final long mLoadingArticleId;
 		
 		public ArticleDisplayTask(long articleId, boolean getImages) {
@@ -182,10 +225,11 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 			mLoadingArticleId = articleId;
 		}
 		
-		public ArticleDisplayTask(long articleId, boolean getImages, String title, String contentHtml) {
+		public ArticleDisplayTask(long articleId, boolean getImages, String title, String contentHtml, String url) {
 			mGetImages = getImages;
 			this.title = title;
 			this.contentHtml = contentHtml;
+			this.url = url;
 			mLoadingArticleId = articleId;
 		}
 
@@ -197,7 +241,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 				return null;
 			}
 			
-			if (title == null && contentHtml == null) {
+			if (title == null || contentHtml == null || url == null) {
 				assert(params != null);
 				assert(params.length == 1);
 				Cursor data = params[0];
@@ -210,6 +254,7 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 				if (data.moveToFirst()) {
 					title = data.getString(data.getColumnIndexOrThrow(DbHelper.KEY_TITLE));
 					contentHtml = data.getString(data.getColumnIndexOrThrow(DbHelper.KEY_CONTENT));
+					url = data.getString(data.getColumnIndexOrThrow(DbHelper.KEY_CANONICAL_URL));
 				}
 				
 				if (title == null || contentHtml == null) {
@@ -278,7 +323,10 @@ public class ArticleDisplayFragment extends Fragment implements LoaderManager.Lo
 					if (!mGetImages) {
 						// Go again, this time with images.
 						mFirstPass = false;
-						new ArticleDisplayTask(mLoadingArticleId, true, this.title, contentHtml).execute();
+						new ArticleDisplayTask(mLoadingArticleId, true, this.title, this.contentHtml, this.url).execute();
+					} else {
+						// This was the final pass.
+						mCallbacks.onArticleShow(url);
 					}
 				} else {
 					// We fetched the article but the user is already elsewhere. :( Some manners!

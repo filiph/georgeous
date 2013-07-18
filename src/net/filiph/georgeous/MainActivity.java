@@ -28,10 +28,11 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements ArticleListFragment.Callbacks {
+public class MainActivity extends Activity implements ArticleListFragment.Callbacks, ArticleDisplayFragment.ArticleShownListener {
 	private static final String TAG = "GeorgeousMainActivity";
 
 	private static final String DATA_ALREADY_LOADED_FOR_FIRST_TIME = "DATA_LOADED_FOR_FIRST_TIME";
@@ -66,6 +67,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	private boolean mTwoPane = false;
 
 	private long mShortAnimationDuration;
+
+	private ShareActionProvider mShareActionProvider;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +117,8 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 //		});
 	}
 	
+	private MenuItem mShareItem;
+	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 	    MenuItem shareItem = menu.findItem(R.id.menu_share);
@@ -122,6 +127,10 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	    
 	    MenuItem refreshItem = menu.findItem(R.id.menu_refresh);
 	    refreshItem.setVisible(!mCheckInProgress);
+	    
+	    // Locate MenuItem with ShareActionProvider, store it
+	    mShareItem = menu.findItem(R.id.menu_share);
+	    mShareActionProvider = (ShareActionProvider) mShareItem.getActionProvider();
 	    
 	    super.onPrepareOptionsMenu(menu);
 	    return true;
@@ -145,13 +154,13 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.list_articles, menu);
+		getMenuInflater().inflate(R.menu.list_articles, menu);
+		
+	    // Locate MenuItem with ShareActionProvider, store it
+	    MenuItem item = menu.findItem(R.id.menu_share);
+	    mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+
 		return true;
-	}
-	
-	public boolean onMenuShareClick(MenuItem item) {
-		return false;
 	}
 	
 	public boolean onMenuRefreshClick(MenuItem item) {
@@ -331,6 +340,28 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 			((ArticleDisplayFragment) getFragmentManager()
 					.findFragmentById(R.id.article_display_fragment))
 					.loadArticle(id);
+		}
+	}
+
+	@Override
+	public void onArticleShow(String url) {
+		if (url != null) {
+			Log.w(TAG, "Showing article: " + url);
+			if (mShareItem != null && mShareActionProvider != null) {
+				mShareItem.setEnabled(true);
+				
+				Intent shareIntent = new Intent(Intent.ACTION_SEND);
+				shareIntent.putExtra(Intent.EXTRA_TEXT, url);
+				shareIntent.setType("text/plain");
+				mShareActionProvider.setShareIntent(shareIntent);
+			}
+		}
+	}
+
+	@Override
+	public void onArticleHide() {
+		if (mShareItem != null) {
+			mShareItem.setEnabled(false);
 		}
 	}
 }
