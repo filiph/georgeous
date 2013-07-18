@@ -52,7 +52,8 @@ public class JellyBeanSpanFixTextView extends TextView {
 			int heightMeasureSpec) {
 
 		Object[] spans = builder.getSpans(0, builder.length(), Object.class);
-		List<Object> spansWithSpacesBefore = new ArrayList<Object>(spans.length);
+		List<Object> spansWithSpacesBefore = 
+				new ArrayList<Object>(spans.length);
 		List<Object> spansWithSpacesAfter = new ArrayList<Object>(spans.length);
 
 		for (Object span : spans) {

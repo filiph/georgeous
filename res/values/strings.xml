@@ -2,24 +2,7 @@
 <resources>
 
     <string name="app_name">Georgeous</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
-    <string name="welcomeHeader">I am already starting to like you</string>
-    <string name="welcomeText">Look at you waiting while I fetch the latest Android news for you. You\'re so patient and easy-going. Wow. I really like you.</string>
-    <string name="welcomeButton">Thanks. I like you too.</string>
 
-    <string-array name="dummy_article_names">
-        <item>First dummy</item>
-        <item>Second one</item>
-        <item>Third..</item>
-        <item>A long, long article with some really uninteresting name</item>
-        <item>An inteřnačionál Artikel</item>
-        <item>Another of those longer titles</item>
-        <item>This might well be the last article in this list</item>
-        <item>Nope!</item>
-    </string-array>
 
     <string name="george_desc">George</string>
     <string name="empty"></string>
@@ -34,4 +17,9 @@
     <string name="no_new_articles_toast">“There are no new articles on the web. Those slackers!”</string>
     <string name="call_to_select_article">“You can use your attractive fingers to select an article on the left.”</string>
 
+        <!-- Currently unused, but saved for later. -->
+<!--     <string name="action_settings">Settings</string>
+    <string name="welcomeHeader">I am already starting to like you</string>
+    <string name="welcomeText">Look at you waiting while I fetch the latest Android news for you. You\'re so patient and easy-going. Wow. I really like you.</string>
+    <string name="welcomeButton">Thanks. I like you too.</string> -->
 </resources>

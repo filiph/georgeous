@@ -62,7 +62,6 @@ public class ArticleDisplayFragment extends Fragment implements
 	private ArticleShownListener mCallbacks = sDummyCallbacks;
 
 	public void loadArticle(long articleId) {
-		Log.v(TAG, "loadArticleId called (" + articleId + ")");
 		mArticleId = articleId;
 
 		TextView titleView = (TextView) getActivity().findViewById(
@@ -95,8 +94,6 @@ public class ArticleDisplayFragment extends Fragment implements
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Log.v(TAG, "onCreateLoader called");
-
 		if (mArticleId == -1) {
 			throw new IllegalStateException(
 					"onCreateLoader called, but mArticleId is invalid");
@@ -138,7 +135,6 @@ public class ArticleDisplayFragment extends Fragment implements
 		super.onDetach();
 
 		mCallbacks.onArticleHide();
-
 		// Reset the active callbacks interface to the dummy implementation.
 		mCallbacks = sDummyCallbacks;
 	}
@@ -153,8 +149,8 @@ public class ArticleDisplayFragment extends Fragment implements
 							// first pass.
 
 		// If the user has scrolled already, it means there was time for getting
-		// images (maybe before
-		// an orientation change?). So let's not do the two-pass thing now.
+		// images (maybe before an orientation change?). So let's not do the
+		// two-pass thing now.
 		boolean loadImagesOnFirstPass = mYRelativePosition != 0f;
 
 		// Use AsyncTask to parse the HTML content and add images.
@@ -171,7 +167,6 @@ public class ArticleDisplayFragment extends Fragment implements
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Log.v(TAG, "Saving instance state.");
 		outState.putLong(SAVED_ARTICLE_ID, mArticleId);
 		outState.putFloat(SAVED_Y_POSITION, mYRelativePosition);
 	}
@@ -179,7 +174,6 @@ public class ArticleDisplayFragment extends Fragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
-		Log.v(TAG, "onStart called, mArticleId = " + mArticleId);
 
 		if (mArticleId != -1) {
 			// mArticle was initialized from savedInstanceState.
@@ -253,7 +247,6 @@ public class ArticleDisplayFragment extends Fragment implements
 		private final boolean mGetImages;
 		private String title;
 		private String contentHtml;
-
 		private String url;
 
 		private final long mLoadingArticleId;
@@ -287,7 +280,7 @@ public class ArticleDisplayFragment extends Fragment implements
 
 				if (title == null || contentHtml == null) {
 					throw new IllegalStateException(
-							"The cursor received an article with null contents.");
+							"The cursor received article with null contents.");
 				}
 				data.close();
 			}
@@ -326,7 +319,8 @@ public class ArticleDisplayFragment extends Fragment implements
 				CharSequence content = strings[1];
 				TextView titleView = (TextView) getActivity().findViewById(
 						R.id.article_display_title);
-				JellyBeanSpanFixTextView contentView = (JellyBeanSpanFixTextView) getActivity()
+				JellyBeanSpanFixTextView contentView = 
+						(JellyBeanSpanFixTextView) getActivity()
 						.findViewById(R.id.article_content);
 				ProgressBar progressCircle = (ProgressBar) getActivity()
 						.findViewById(R.id.progress_circle);
@@ -339,7 +333,7 @@ public class ArticleDisplayFragment extends Fragment implements
 						contentView.setText(content);
 					} catch (IndexOutOfBoundsException e) {
 						// Hmm, I guess the JellyBeanSpanFixTextView hasn't
-						// fixed this for all.
+						// fixed this completely.
 						e.printStackTrace();
 						contentView.setText(content.toString());
 						// TODO: Apologize to the user?
@@ -349,9 +343,10 @@ public class ArticleDisplayFragment extends Fragment implements
 						mScrollView.post(new Runnable() {
 							@Override
 							public void run() {
-								// Good enough for now. TODO better.
-								mScrollView.setScrollY((int) (mScrollView
-										.getMaxScrollAmount() * mYRelativePosition));
+								// Good enough for now. TODO: better.
+								mScrollView.setScrollY((int) (
+										mScrollView.getMaxScrollAmount() 
+										* mYRelativePosition));
 							}
 						});
 					}
@@ -371,7 +366,7 @@ public class ArticleDisplayFragment extends Fragment implements
 					// :( Some manners!
 				}
 			} else {
-				// TODO: handle
+				Log.w(TAG, "Bad call to onPostExecute.");
 			}
 		}
 

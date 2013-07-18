@@ -15,7 +15,6 @@ public class BlankImageGetter implements ImageGetterWithManageSpace {
 		// working because gifs are not supported
 		mDrawable = new BitmapDrawable(mResources);
 		ImageGetter.setBounds(mDrawable, metrics);
-
 	}
 
 	private final Resources mResources;

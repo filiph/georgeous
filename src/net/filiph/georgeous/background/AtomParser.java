@@ -14,7 +14,6 @@ import net.filiph.georgeous.data.Article;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.util.Log;
 import android.util.Xml;
 
 /**
@@ -27,21 +26,22 @@ public class AtomParser {
 	// We don't use namespaces
 	private static final String ns = null;
 
+	// 2013-06-03T10:14:00.000-07:00 (but we only use the date part)
+	final static String sFormat = "yyyy-MM-dd";
 
-	// 2013-06-03T10:14:00.000-07:00
-	final static String format = "yyyy-MM-dd";
+	final static SimpleDateFormat sInputParser = new SimpleDateFormat(sFormat,
+			Locale.US); // Because the Android blog is mostly updated from
+						// the US.
 
-	final static SimpleDateFormat inputParser = new SimpleDateFormat(format,
-			Locale.US);
-
-	final static SimpleDateFormat humanOutputParser = new SimpleDateFormat(
-			"MMMM d", Locale.US);
+	final static SimpleDateFormat sHumanOutputParser = new SimpleDateFormat(
+			"MMMM d", Locale.US); // Ex.: "May 21"
 
 	private static final String POSTED_BY_STRING = "Posted by";
 
 	private static final int MAX_CHARS_WALKED = 400;
 	private static final int MAX_CHARS_IN_NAME = 40;
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "AtomParser";
 
 	public static List<Article> parse(InputStream in)
@@ -62,7 +62,7 @@ public class AtomParser {
 
 		Date date = getPublishedDate(article);
 		if (date != null) {
-			strBuilder.append(humanOutputParser.format(date));
+			strBuilder.append(sHumanOutputParser.format(date));
 		}
 		if (date != null && article.author_guess != null) {
 			strBuilder.append(", ");
@@ -77,14 +77,22 @@ public class AtomParser {
 	private static Date getPublishedDate(Article article) {
 		Date date = null;
 		try {
-			date = inputParser.parse(article.published_timestamp.trim()
-					.substring(0, format.length()));
+			date = sInputParser.parse(article.published_timestamp.trim()
+					.substring(0, sFormat.length()));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		return date;
 	}
 
+	/**
+	 * This tries to guess the author's name from the "Posted by ___" string at
+	 * the beginning of almost every Android blog post. Obviously, this is a big
+	 * hack (if there was a change in the way the Android blog lists authors, we
+	 * would not be able to detect them, or worse, we would detect something
+	 * stupid). Note that the usual way of detecting authors (from <author>)
+	 * doesn't work here because it's always "Android Developer".
+	 */
 	private static String guessAuthor(String content) {
 		String guess = null;
 		int maxChars = Math.min(content.length(), MAX_CHARS_WALKED);
@@ -116,11 +124,6 @@ public class AtomParser {
 				return guess;
 			}
 		}
-
-		Log.v(TAG, "Couldn't find author");
-		Log.v(TAG, "start = " + start + ", endATag = " + endATag + ", comma = "
-				+ comma);
-
 		return null;
 	}
 

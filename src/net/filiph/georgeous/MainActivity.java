@@ -67,14 +67,12 @@ public class MainActivity extends Activity implements
 	private MenuItem mShareItem;
 
 	public void notifyArticleListDatasetChanged() {
-		Log.v(TAG, "Notifying on dataset changed.");
 		ArticleListFragment articleListFragment = (ArticleListFragment) getFragmentManager()
 				.findFragmentById(R.id.article_list_fragment);
 		if (articleListFragment == null) {
 			// TODO: set pref to reload on create?
-			Log.v(TAG, "- Fragment not found.");
+			Log.w(TAG, "ArticleListFragment not found.");
 		} else {
-			Log.v(TAG, "- Fragment found.");
 			articleListFragment.notifyDatasetChanged();
 		}
 	}
@@ -89,7 +87,7 @@ public class MainActivity extends Activity implements
 	@Override
 	public void onArticleShow(String url) {
 		if (url != null) {
-			Log.w(TAG, "Showing article: " + url);
+			Log.v(TAG, "Showing article: " + url);
 			if (mShareItem != null && mShareActionProvider != null) {
 				mShareItem.setEnabled(true);
 
@@ -144,7 +142,6 @@ public class MainActivity extends Activity implements
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem shareItem = menu.findItem(R.id.menu_share);
 		shareItem.setVisible(mTwoPane);
-		// TODO enabled according to article shown
 
 		MenuItem refreshItem = menu.findItem(R.id.menu_refresh);
 		refreshItem.setVisible(!mCheckInProgress);
@@ -189,7 +186,7 @@ public class MainActivity extends Activity implements
 
 		Toast toast = new Toast(getApplicationContext());
 		toast.setDuration(Toast.LENGTH_LONG); // TODO: according to length of
-												// msg
+												// message
 		toast.setView(view);
 		toast.show();
 	}
@@ -205,7 +202,6 @@ public class MainActivity extends Activity implements
 
 		setContentView(R.layout.main_activity);
 
-		Log.v(TAG, "onCreate!");
 		mPrefs = getPreferences(MODE_PRIVATE);
 
 		mGeorgeGreeter = findViewById(R.id.george_greeter);
@@ -248,8 +244,9 @@ public class MainActivity extends Activity implements
 				receiverIntentFilter);
 
 		if (mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
-			// The return intent may have arrived in the meantime. Let's not
-			// prevent user from hitting refresh again.
+			// The return intent may have arrived in the meantime (while
+			// activity was inactive). Let's not prevent user from hitting
+			// refresh again.
 			mCheckInProgress = false;
 			setProgressBarIndeterminateVisibility(false);
 			invalidateOptionsMenu();
@@ -284,18 +281,18 @@ public class MainActivity extends Activity implements
 		 * @param intent
 		 */
 		private void handleFeedResultIntent(Intent intent) {
-			Log.v(TAG, "Received intent from a service!");
 			int feedResult = intent.getIntExtra(Constants.FEED_RESULT_CODE, 0);
-			Log.v(TAG, "The service says: '" + feedResult + "'. Yay!");
+			Log.v(TAG, "The service result code: '" + feedResult);
 
 			boolean willInvalidateOptionsMenuLater = false;
 			if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
-				Log.v(TAG, "First time visitor has new articles.");
+				// First time visitor has new articles.
 				long current = System.currentTimeMillis();
 				if (current - mGeorgeAppearedTime > MIN_TIME_TO_SHOW_GEORGE) {
 					fadeOutGeorgeGreeter();
 				} else {
-					// Delay execution.
+					// Delay execution. We want user to have the time to see
+					// George and read his message.
 					new Handler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
@@ -305,6 +302,9 @@ public class MainActivity extends Activity implements
 						}
 					}, MIN_TIME_TO_SHOW_GEORGE
 							- (current - mGeorgeAppearedTime));
+					// If we invalidate now, the spinning progress 'bar' will
+					// disappear, which is truthful (we're not loading anymore),
+					// but confusing (it looks like the screen has frozen).
 					willInvalidateOptionsMenuLater = true;
 				}
 				notifyArticleListDatasetChanged();
@@ -312,10 +312,10 @@ public class MainActivity extends Activity implements
 						.putBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, true)
 						.commit();
 			} else if (feedResult == Constants.FEED_RESULT_NEW_ARTICLES) {
-				Log.v(TAG, "n-th time visitor has new articles.");
+				// n-th time visitor has new articles."
 				notifyArticleListDatasetChanged();
 			} else {
-				Log.v(TAG, "No new articles.");
+				// No new articles.
 				makeGeorgeToast(getString(R.string.no_new_articles_toast));
 			}
 

@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 
 import android.content.res.Resources;
@@ -22,7 +21,9 @@ import android.util.Log;
 
 public class ImageGetter implements ImageGetterWithManageSpace {
 	private static final String TAG = "ImageGetter";
-	private static final long MAX_SIZE_OF_CACHE = 5000000;
+
+	private static final long MAX_SIZE_OF_CACHE = 5000000; // 5MB self-imposed
+															// quota
 
 	public static void setBounds(BitmapDrawable d, DisplayMetrics metrics) {
 		if (d == null)
@@ -71,14 +72,14 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 			String[] filenames = mExternalCacheDir.list();
 			for (String filename : filenames) {
 				String hash = filename.replaceFirst("[.][^.]+$", "");
-				// Log.v(TAG, "Hash for '" + filename + "' is: " + hash);
 				cacheFilenames.put(hash, filename);
 			}
 		}
 
 		if (cachingOnly && !mExternalStorageWriteable) {
 			throw new IllegalStateException(
-					"Trying to create ImageGetter for caching when external storage is unavailable.");
+					"Trying to create ImageGetter for caching when external "
+							+ "storage is unavailable.");
 		}
 	}
 
@@ -105,7 +106,6 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 		BitmapDrawable bmp = null;
 
 		if (mExternalStorageAvailable && mExternalCacheDir != null) {
-			// Log.v(TAG, "First lookup in cache.");
 			bmp = getBitmapFromCache(url);
 		}
 
@@ -116,14 +116,11 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 				boolean cached = tryCaching(in, url);
 				in.close();
 				if (cached && !mCachingOnly) {
-					// Log.v(TAG,
-					// "Second lookup in cache (after tryCaching()).");
 					// Now that we have the file offline, build the drawable.
 					bmp = getBitmapFromCache(url);
 				} else {
 					if (!mCachingOnly) {
 						// Try again without caching.
-						// Log.v(TAG, "Read image directly from URL.");
 						in = new java.net.URL(url).openStream();
 						bmp = new BitmapDrawable(mResources,
 								new PatchInputStream(in));
@@ -131,13 +128,11 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 					}
 				}
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return null; // TODO: return a default X
+				return null; // TODO: return a default X pic?
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-				return null; // TODO: return a default X
+				return null; // TODO: return a default X pic?
 			}
 		}
 
@@ -172,8 +167,6 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 				cummulativeSize += fileSize;
 				if (cummulativeSize > MAX_SIZE_OF_CACHE) {
 					Log.v(TAG, "Deleting file " + f.getAbsolutePath());
-					Log.v(TAG, "- " + (new Date(f.lastModified())).toString()
-							+ " (size: " + fileSize + ")");
 					f.delete();
 					cummulativeSize -= fileSize;
 				}
@@ -193,17 +186,12 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 		if (cacheFilenames.containsKey(hash)) {
 			String filename = cacheFilenames.get(hash);
 			File file = new File(mExternalCacheDir, filename);
-			// Log.v(TAG, "The file for url '" + url + "' should exist as: " +
-			// file.getAbsolutePath());
 			assert (file.exists()); // Should exist since it's in the HashMap
 									// created moments ago.
 			// TODO: try catch
-			// Log.v(TAG, "Found cached file for url '" + url + "' (" + filename
-			// + ")");
 			return new BitmapDrawable(mResources, file.getAbsolutePath());
 		} else {
-			Log.v(TAG, "Did not find cached file for url '" + url + "' (hash: "
-					+ hash + ")");
+			// Did not find the cashed file.
 			return null;
 		}
 	}
@@ -212,8 +200,8 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 	 * @param url
 	 */
 	private String getExtensionFromUrl(String url) {
-		return "image";
-		// return url.replaceFirst("^.*/[^/]*(\\.[^\\./]*|)$", "$1");
+		return "image"; // Let the BitmapImageFactory do the work of recognizing
+						// file type. We don't need an extension for that.
 	}
 
 	/**
@@ -263,8 +251,6 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 					output.flush();
 				} finally {
 					output.close();
-					// Log.v(TAG, "Created new cache file: " +
-					// file.getAbsolutePath());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

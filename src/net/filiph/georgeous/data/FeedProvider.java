@@ -42,7 +42,8 @@ public class FeedProvider extends ContentProvider {
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		// TODO: catch DatabaseLockedException..
 		Log.w(TAG,
-				"Delete is not fully implemented on the FeedProvider. It just deletes the whole thing.");
+				"Delete is not fully implemented on the FeedProvider. " + 
+				"It just deletes the whole thing.");
 		mOpenHelper.getWritableDatabase().execSQL(
 				"DELETE FROM " + DbHelper.ARTICLE_TABLE_NAME);
 		return 0;
@@ -50,14 +51,14 @@ public class FeedProvider extends ContentProvider {
 
 	@Override
 	public String getType(Uri uri) {
-		Log.v(TAG,
-				"FeedProvider's getType was called with uri " + uri.toString());
 		int match = sURIMatcher.match(uri);
 		switch (match) {
 		case ARTICLES:
-			return "vdn.android.cursor.dir/vdn.net.filiph.georgeous.provider.articles";
+			return "vdn.android.cursor.dir/" + 
+				"vdn.net.filiph.georgeous.provider.articles";
 		case ARTICLES_ID:
-			return "vdn.android.cursor.item/vdn.net.filiph.georgeous.provider.articles";
+			return "vdn.android.cursor.item/" + 
+				"vdn.net.filiph.georgeous.provider.articles";
 		default:
 			return null;
 		}
@@ -71,7 +72,6 @@ public class FeedProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		Log.v(TAG, "FeedProvider onCreate called");
 		mOpenHelper = new DbHelper(getContext());
 		return true;
 	}

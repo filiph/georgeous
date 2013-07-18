@@ -28,9 +28,8 @@ import android.util.Log;
 
 public class ReaderFeedService extends IntentService {
 	private static final String TAG = "GeorgeousReaderFeedService";
-	
-	private static final String FEED_URL = 
-			"http://android-developers.blogspot.com/atom.xml";
+
+	private static final String FEED_URL = "http://android-developers.blogspot.com/atom.xml";
 
 	private static final int MAX_ARTICLES_TO_PRELOAD = 5;
 
@@ -63,8 +62,8 @@ public class ReaderFeedService extends IntentService {
 			e.printStackTrace();
 			return null;
 		} catch (XmlPullParserException e) {
-			Log.e(TAG,
-					"The received XML was malformed or there was an error with parsing it.");
+			Log.e(TAG, "The received XML was malformed "
+					+ "or there was an error with parsing it.");
 			sendFeedResult(Constants.FEED_RESULT_OTHER_ERROR);
 			e.printStackTrace();
 			return null;
@@ -86,13 +85,10 @@ public class ReaderFeedService extends IntentService {
 				Log.i(TAG, "Could not find or create external cache directory.");
 				return;
 			}
-
-			DisplayMetrics metrics = new DisplayMetrics(); // we don't care
-															// about metrics
-															// (the images won't
-															// be shown and the
-															// bounds are not
-															// saved)
+			
+			// We don't care about metrics (the images won't be shown and the
+			// bounds are not saved)
+			DisplayMetrics metrics = new DisplayMetrics();
 
 			ImageGetterWithManageSpace imgGetter = new ImageGetter(
 					externalCacheDir, getResources(), metrics, true);
@@ -102,7 +98,8 @@ public class ReaderFeedService extends IntentService {
 			imgGetter.manageSpace();
 		} else {
 			Log.i(TAG,
-					"External storage cannot be mounted - skipping image caching.");
+					"External storage cannot be mounted " + 
+					"- skipping image caching.");
 		}
 
 	}
@@ -192,16 +189,12 @@ public class ReaderFeedService extends IntentService {
 		Intent localIntent = new Intent(Constants.FEED_RESULT_INTENT).putExtra(
 				Constants.FEED_RESULT_CODE, resultCode);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
-		Log.v(TAG, "Sending broadcast done.");
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		Log.v(TAG, "HandleIntent called. Intent action: " + intent.getAction());
-
 		if (intent.getAction().equals(Constants.GET_ARTICLES_INTENT)) {
-			// TODO: get from intent
-			String urlString = FEED_URL;
+			String urlString = FEED_URL;  // TODO: get url from intent
 			getArticles(urlString);
 		} else if (intent.getAction().equals(
 				Constants.GET_ARTICLE_IMAGES_INTENT)) {
@@ -213,9 +206,4 @@ public class ReaderFeedService extends IntentService {
 			Log.e(TAG, "Wrong intent received.");
 		}
 	}
-
-	// private static String readStream(InputStream in) {
-	// java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
-	// return s.hasNext() ? s.next() : null;
-	// }
 }

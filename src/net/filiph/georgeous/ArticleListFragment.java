@@ -19,9 +19,11 @@ import android.database.Cursor;
 public class ArticleListFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "ArticleListFragment";
+	
 	private static final int ARTICLE_LIST_ID = 0;
 
-	private static final String SAVED_ACTIVATED_POSITION = "SAVED_ACTIVATED_POSITION";
+	private static final String SAVED_ACTIVATED_POSITION = 
+			"SAVED_ACTIVATED_POSITION";
 	private static final String SAVED_SCROLL_INDEX = "SAVED_SCROLL_INDEX";
 	private static final String SAVED_SCROLL_TOP = "SAVED_SCROLL_TOP";
 
@@ -50,7 +52,6 @@ public class ArticleListFragment extends ListFragment implements
 	private int mActivatedPosition = ListView.INVALID_POSITION;
 
 	public void notifyDatasetChanged() {
-		// mAdapter.notifyDataSetChanged(); // this doesn't do anything
 		getLoaderManager().restartLoader(ARTICLE_LIST_ID, null, this);
 	}
 
@@ -112,12 +113,6 @@ public class ArticleListFragment extends ListFragment implements
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		Log.v(TAG, "onLoadFinished called");
-		if (data == null) {
-			Log.e(TAG, "- cursor is null!");
-		} else {
-			Log.v(TAG, "- the cursor has length " + data.getCount());
-		}
 		mAdapter.swapCursor(data);
 		// TODO: if data is 0 rows long, then notify main activity
 	}
@@ -151,12 +146,13 @@ public class ArticleListFragment extends ListFragment implements
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		// Restore the previously serialized activated item position.
 		if (savedInstanceState != null) {
+			// Restore the previously serialized activated item position.
 			if (savedInstanceState.containsKey(SAVED_ACTIVATED_POSITION)) {
 				setActivatedPosition(savedInstanceState
 						.getInt(SAVED_ACTIVATED_POSITION));
 			}
+			// Restore scroll position.
 			if (savedInstanceState.containsKey(SAVED_SCROLL_INDEX)
 					&& savedInstanceState.containsKey(SAVED_SCROLL_TOP)) {
 				mScrollIndex = savedInstanceState.getInt(SAVED_SCROLL_INDEX);

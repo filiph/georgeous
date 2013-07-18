@@ -27,7 +27,7 @@ public class ArticleDisplayActivity extends Activity implements
 	@Override
 	public void onArticleShow(String url) {
 		if (url != null) {
-			Log.w(TAG, "Showing article: " + url);
+			Log.v(TAG, "Showing article: " + url);
 			if (mShareItem != null && mShareActionProvider != null) {
 				mShareItem.setEnabled(true);
 
