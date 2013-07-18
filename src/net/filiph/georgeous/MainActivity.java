@@ -220,7 +220,6 @@ public class MainActivity extends Activity implements
 			// 'activated' state when touched.
 			((ArticleListFragment) getFragmentManager().findFragmentById(
 					R.id.article_list_fragment)).setActivateOnItemClick(true);
-
 		}
 
 		if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
@@ -248,12 +247,13 @@ public class MainActivity extends Activity implements
 		LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
 				receiverIntentFilter);
 
-		mCheckInProgress = false; // The return intent may have arrived in the
-									// meantime. Let's not prevent user from
-									// hitting refresh again.
-		setProgressBarIndeterminateVisibility(false);
-		invalidateOptionsMenu();
-
+		if (mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
+			// The return intent may have arrived in the meantime. Let's not
+			// prevent user from hitting refresh again.
+			mCheckInProgress = false;
+			setProgressBarIndeterminateVisibility(false);
+			invalidateOptionsMenu();
+		}
 	}
 
 	/**
