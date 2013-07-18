@@ -7,18 +7,21 @@ import android.util.DisplayMetrics;
 
 public class BlankImageGetter implements ImageGetterWithManageSpace {
 
-	private final Resources mResources;
-	private final BitmapDrawable mDrawable;
-	
 	public BlankImageGetter(Resources resources, DisplayMetrics metrics) {
 		mResources = resources;
-		
-//		mDrawable = new BitmapDrawable(mResources, BitmapFactory.decodeResource(mResources, R.drawable.loader)); - not working because gifs are not supported
+
+		// mDrawable = new BitmapDrawable(mResources,
+		// BitmapFactory.decodeResource(mResources, R.drawable.loader)); - not
+		// working because gifs are not supported
 		mDrawable = new BitmapDrawable(mResources);
 		ImageGetter.setBounds(mDrawable, metrics);
-		
+
 	}
-	
+
+	private final Resources mResources;
+
+	private final BitmapDrawable mDrawable;
+
 	@Override
 	public Drawable getDrawable(String source) {
 		return mDrawable;

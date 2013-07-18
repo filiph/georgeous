@@ -20,20 +20,14 @@ public class DbHelper extends SQLiteOpenHelper {
 	public static final String KEY_CATEGORIES = "categories";
 	public static final String KEY_HUMAN_INFO = "human_info";
 	public static final String KEY_ID = "_id";
-	private static final String ARTICLE_TABLE_CREATE = "CREATE TABLE " + 
-			ARTICLE_TABLE_NAME + " (" +
-			KEY_TITLE + " TEXT, " +
-			KEY_CONTENT + " BLOB, " +
-			KEY_CANONICAL_URL + " TEXT UNIQUE NOT NULL, " +
-			KEY_AUTHOR_GUESS + " TEXT, " +
-			KEY_THUMBNAIL_URL + " TEXT, " +
-			KEY_PUBLISHED_TIMESTAMP + " TEXT, " +
-			KEY_UPDATED_TIMESTAMP + " TEXT, " +
-			KEY_CATEGORIES + " TEXT, " +
-			KEY_HUMAN_INFO + " TEXT, " +
-			KEY_READCOUNT + " INTEGER, " +
-			KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT);";
-	
+	private static final String ARTICLE_TABLE_CREATE = "CREATE TABLE "
+			+ ARTICLE_TABLE_NAME + " (" + KEY_TITLE + " TEXT, " + KEY_CONTENT
+			+ " BLOB, " + KEY_CANONICAL_URL + " TEXT UNIQUE NOT NULL, "
+			+ KEY_AUTHOR_GUESS + " TEXT, " + KEY_THUMBNAIL_URL + " TEXT, "
+			+ KEY_PUBLISHED_TIMESTAMP + " TEXT, " + KEY_UPDATED_TIMESTAMP
+			+ " TEXT, " + KEY_CATEGORIES + " TEXT, " + KEY_HUMAN_INFO
+			+ " TEXT, " + KEY_READCOUNT + " INTEGER, " + KEY_ID
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT);";
 
 	public static ContentValues articleToContentValues(Article article) {
 		ContentValues values = new ContentValues();
@@ -42,16 +36,17 @@ public class DbHelper extends SQLiteOpenHelper {
 		values.put(DbHelper.KEY_AUTHOR_GUESS, article.author_guess);
 		values.put(DbHelper.KEY_CANONICAL_URL, article.canonical_url);
 		values.put(DbHelper.KEY_THUMBNAIL_URL, article.thumbnail_url);
-		values.put(DbHelper.KEY_PUBLISHED_TIMESTAMP, article.published_timestamp);
+		values.put(DbHelper.KEY_PUBLISHED_TIMESTAMP,
+				article.published_timestamp);
 		values.put(DbHelper.KEY_UPDATED_TIMESTAMP, article.updated_timestamp);
 		values.put(DbHelper.KEY_HUMAN_INFO, article.human_info);
 		return values;
 	}
-	
+
 	public DbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
-	
+
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(ARTICLE_TABLE_CREATE);
@@ -59,7 +54,6 @@ public class DbHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
 		db.execSQL("DROP TABLE IF EXISTS " + ARTICLE_TABLE_NAME + "; ");
 		db.execSQL(ARTICLE_TABLE_CREATE);
 	}

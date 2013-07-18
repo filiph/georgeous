@@ -7,6 +7,8 @@ import android.app.ListFragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.app.LoaderManager;
@@ -25,18 +27,11 @@ public class ArticleListFragment extends ListFragment implements
 
 	private int mScrollIndex = 0;
 	private int mScrollTop = 0;
-	
+
 	private SimpleCursorAdapter mAdapter;
 
 	// The current activity to call with callbacks.
 	private Callbacks mCallbacks = sDummyCallbacks;
-
-	public interface Callbacks {
-		/**
-		 * Callback for when an item has been selected.
-		 */
-		public void onItemSelected(long id);
-	}
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
@@ -50,6 +45,26 @@ public class ArticleListFragment extends ListFragment implements
 	 * fragment (e.g. upon screen orientation changes).
 	 */
 	public ArticleListFragment() {
+	}
+
+	private int mActivatedPosition = ListView.INVALID_POSITION;
+
+	public void notifyDatasetChanged() {
+		// mAdapter.notifyDataSetChanged(); // this doesn't do anything
+		getLoaderManager().restartLoader(ARTICLE_LIST_ID, null, this);
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		// Activities containing this fragment must implement its callbacks.
+		if (!(activity instanceof Callbacks)) {
+			throw new IllegalStateException(
+					"Activity must implement fragment's callbacks.");
+		}
+
+		mCallbacks = (Callbacks) activity;
 	}
 
 	@Override
@@ -66,48 +81,10 @@ public class ArticleListFragment extends ListFragment implements
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-
-		// Restore the previously serialized activated item position.
-		if (savedInstanceState != null) {
-			if (savedInstanceState.containsKey(SAVED_ACTIVATED_POSITION)) {
-				setActivatedPosition(savedInstanceState
-						.getInt(SAVED_ACTIVATED_POSITION));
-			}
-			if (savedInstanceState.containsKey(SAVED_SCROLL_INDEX) && 
-					savedInstanceState.containsKey(SAVED_SCROLL_TOP)) {
-				mScrollIndex = savedInstanceState.getInt(SAVED_SCROLL_INDEX);
-				mScrollTop = savedInstanceState.getInt(SAVED_SCROLL_TOP);
-			}
-		}
-	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		getListView().setSelectionFromTop(mScrollIndex, mScrollTop);
-	}
-	
-	@Override
-	public void onPause() {
-		super.onPause();
-		mScrollIndex = getListView().getFirstVisiblePosition();
-		View firstItem = getListView().getChildAt(0);
-		mScrollTop = (firstItem == null) ? 0 : firstItem.getTop();
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-
-		// Activities containing this fragment must implement its callbacks.
-		if (!(activity instanceof Callbacks)) {
-			throw new IllegalStateException(
-					"Activity must implement fragment's callbacks.");
-		}
-
-		mCallbacks = (Callbacks) activity;
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		Log.v(TAG, "onCreateLoader called");
+		return new CursorLoader(getActivity(), FeedProvider.ARTICLES_URI, null,
+				null, null, null);
 	}
 
 	@Override
@@ -129,23 +106,8 @@ public class ArticleListFragment extends ListFragment implements
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (mActivatedPosition != ListView.INVALID_POSITION) {
-			// Serialize and persist the activated item position.
-			outState.putInt(SAVED_ACTIVATED_POSITION, mActivatedPosition);
-		}
-		outState.putInt(SAVED_SCROLL_INDEX, mScrollIndex);
-		outState.putInt(SAVED_SCROLL_TOP, mScrollTop);
-	}
-
-	private int mActivatedPosition = ListView.INVALID_POSITION;
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Log.v(TAG, "onCreateLoader called");
-		return new CursorLoader(getActivity(), FeedProvider.ARTICLES_URI, null,
-				null, null, null);
+	public void onLoaderReset(Loader<Cursor> loader) {
+		mAdapter.swapCursor(null);
 	}
 
 	@Override
@@ -161,13 +123,46 @@ public class ArticleListFragment extends ListFragment implements
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.swapCursor(null);
+	public void onPause() {
+		super.onPause();
+		mScrollIndex = getListView().getFirstVisiblePosition();
+		View firstItem = getListView().getChildAt(0);
+		mScrollTop = (firstItem == null) ? 0 : firstItem.getTop();
 	}
 
-	public void notifyDatasetChanged() {
-		// mAdapter.notifyDataSetChanged(); // this doesn't do anything
-		getLoaderManager().restartLoader(ARTICLE_LIST_ID, null, this);
+	@Override
+	public void onResume() {
+		super.onResume();
+		getListView().setSelectionFromTop(mScrollIndex, mScrollTop);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (mActivatedPosition != AdapterView.INVALID_POSITION) {
+			// Serialize and persist the activated item position.
+			outState.putInt(SAVED_ACTIVATED_POSITION, mActivatedPosition);
+		}
+		outState.putInt(SAVED_SCROLL_INDEX, mScrollIndex);
+		outState.putInt(SAVED_SCROLL_TOP, mScrollTop);
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		// Restore the previously serialized activated item position.
+		if (savedInstanceState != null) {
+			if (savedInstanceState.containsKey(SAVED_ACTIVATED_POSITION)) {
+				setActivatedPosition(savedInstanceState
+						.getInt(SAVED_ACTIVATED_POSITION));
+			}
+			if (savedInstanceState.containsKey(SAVED_SCROLL_INDEX)
+					&& savedInstanceState.containsKey(SAVED_SCROLL_TOP)) {
+				mScrollIndex = savedInstanceState.getInt(SAVED_SCROLL_INDEX);
+				mScrollTop = savedInstanceState.getInt(SAVED_SCROLL_TOP);
+			}
+		}
 	}
 
 	/**
@@ -178,17 +173,24 @@ public class ArticleListFragment extends ListFragment implements
 		// When setting CHOICE_MODE_SINGLE, ListView will automatically
 		// give items the 'activated' state when touched.
 		getListView().setChoiceMode(
-				activateOnItemClick ? ListView.CHOICE_MODE_SINGLE
-						: ListView.CHOICE_MODE_NONE);
+				activateOnItemClick ? AbsListView.CHOICE_MODE_SINGLE
+						: AbsListView.CHOICE_MODE_NONE);
 	}
 
 	private void setActivatedPosition(int position) {
-		if (position == ListView.INVALID_POSITION) {
+		if (position == AdapterView.INVALID_POSITION) {
 			getListView().setItemChecked(mActivatedPosition, false);
 		} else {
 			getListView().setItemChecked(position, true);
 		}
 
 		mActivatedPosition = position;
+	}
+
+	public interface Callbacks {
+		/**
+		 * Callback for when an item has been selected.
+		 */
+		public void onItemSelected(long id);
 	}
 }
