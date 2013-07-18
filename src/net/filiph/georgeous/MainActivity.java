@@ -5,9 +5,6 @@ import net.filiph.georgeous.data.FeedProvider;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -20,14 +17,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
-import android.widget.FrameLayout;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,8 +36,6 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 	
 	private SharedPreferences mPrefs;
 	private boolean mCheckInProgress = false;
-	
-	private long mLatestArticleId = -1;
 	
 	private View mGeorgeGreeter;
 	
@@ -331,7 +322,6 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 
 	@Override
 	public void onItemSelected(long id) {
-		mLatestArticleId = id;
 		if (!mTwoPane) {
 			Intent intent = new Intent(this, ArticleDisplayActivity.class);
 			intent.putExtra(Constants.ARTICLE_ID_EXTRA, id);

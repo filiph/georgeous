@@ -1,7 +1,5 @@
 package net.filiph.georgeous;
 
-import net.filiph.georgeous.ArticleListFragment.Callbacks;
-import net.filiph.georgeous.data.Article;
 import net.filiph.georgeous.data.BlankImageGetter;
 import net.filiph.georgeous.data.DbHelper;
 import net.filiph.georgeous.data.FeedProvider;
