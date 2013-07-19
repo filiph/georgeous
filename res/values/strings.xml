@@ -1,25 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Georgeous</string>
-
-
     <string name="george_desc">George</string>
     <string name="empty"></string>
-    <string name="more_info_dummy">May 27, 2013</string>
-    <string name="article_title_dummy">An interesting article title which is also a dummy text</string>
-    <string name="dummy_article_content">A dummy article content</string>
     <string name="loading">“Oh hi, looking good today!\nLet me fetch your articles for you.”</string>
     <string name="george_face_description">George\'s handsome face</string>
+    <string name="no_new_articles_toast">“There are no new articles on the web. Those slackers!”</string>
+    <string name="call_to_select_article">“You can use your attractive fingers to select an article on the left.”</string>
     <string name="menu_clear">Clear offline data</string>
     <string name="menu_refresh">Refresh articles</string>
     <string name="menu_share">Share article</string>
-    <string name="no_new_articles_toast">“There are no new articles on the web. Those slackers!”</string>
-    <string name="call_to_select_article">“You can use your attractive fingers to select an article on the left.”</string>
-
-        <!-- Currently unused, but saved for later. -->
-<!--     <string name="action_settings">Settings</string>
-    <string name="welcomeHeader">I am already starting to like you</string>
-    <string name="welcomeText">Look at you waiting while I fetch the latest Android news for you. You\'re so patient and easy-going. Wow. I really like you.</string>
-    <string name="welcomeButton">Thanks. I like you too.</string> -->
 </resources>

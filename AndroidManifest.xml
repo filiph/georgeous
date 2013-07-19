@@ -43,5 +43,4 @@
             android:authorities="net.filiph.georgeous.provider" >
         </provider>
     </application>
-
 </manifest>
