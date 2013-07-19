@@ -9,6 +9,10 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
+/**
+ * ContentProvider for the feed. Provides URIs such as
+ * "content://net.filiph.georgeous.provider/articles/1".
+ */
 public class FeedProvider extends ContentProvider {
 	private static final String TAG = "FeedProvider";
 

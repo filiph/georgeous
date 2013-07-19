@@ -25,6 +25,10 @@ import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * This is the main activity which shows the list of articles, and - when screen
+ * width allows - also the currently selected article.
+ */
 public class MainActivity extends Activity implements
 		ArticleListFragment.Callbacks,
 		ArticleDisplayFragment.ArticleShownListener {
@@ -37,6 +41,9 @@ public class MainActivity extends Activity implements
 	public static final long MIN_TIME_TO_SHOW_GEORGE = 5000;
 
 	private SharedPreferences mPrefs;
+	/**
+	 * True when the background service is currently fetching the feed.
+	 */
 	private boolean mCheckInProgress = false;
 
 	private View mGeorgeGreeter;
@@ -56,6 +63,9 @@ public class MainActivity extends Activity implements
 	 */
 	private long mGeorgeAppearedTime;
 
+	/**
+	 * Timestamp of when the last check was performed.
+	 */
 	private long mLastCheckTime;
 
 	private boolean mTwoPane = false;
@@ -63,9 +73,12 @@ public class MainActivity extends Activity implements
 	private long mShortAnimationDuration;
 
 	private ShareActionProvider mShareActionProvider;
-
 	private MenuItem mShareItem;
 
+	/**
+	 * Helper function that calls the ArticleListFragment's onDatasetChanged
+	 * method.
+	 */
 	public void notifyArticleListDatasetChanged() {
 		ArticleListFragment articleListFragment = (ArticleListFragment) getFragmentManager()
 				.findFragmentById(R.id.article_list_fragment);
@@ -73,7 +86,7 @@ public class MainActivity extends Activity implements
 			// TODO: set pref to reload on create?
 			Log.w(TAG, "ArticleListFragment not found.");
 		} else {
-			articleListFragment.notifyDatasetChanged();
+			articleListFragment.onDatasetChanged();
 		}
 	}
 
@@ -168,6 +181,10 @@ public class MainActivity extends Activity implements
 		invalidateOptionsMenu();
 	}
 
+	/**
+	 * Perform fade out animation on the full screen George greeter that appears
+	 * on first application start.
+	 */
 	private void fadeOutGeorgeGreeter() {
 		mGeorgeGreeter.animate().alpha(0f).setDuration(mShortAnimationDuration)
 				.setListener(new AnimatorListenerAdapter() {
@@ -178,7 +195,10 @@ public class MainActivity extends Activity implements
 				});
 	}
 
-	private void makeGeorgeToast(CharSequence msg) {
+	/**
+	 * Shows the custom Toast with the given message.
+	 */
+	private void showGeorgeToast(CharSequence msg) {
 		LayoutInflater inflater = getLayoutInflater();
 		View view = inflater.inflate(R.layout.george_toast,
 				(ViewGroup) findViewById(R.id.george_toast));
@@ -191,6 +211,10 @@ public class MainActivity extends Activity implements
 		toast.show();
 	}
 
+	/**
+	 * Make the full screen greeter visible. May be more elaborate in the
+	 * future.
+	 */
 	private void showGeorgeGreeter() {
 		mGeorgeGreeter.setVisibility(View.VISIBLE);
 	}
@@ -255,6 +279,8 @@ public class MainActivity extends Activity implements
 
 	/**
 	 * Broadcast receiver for receiving status updates from the IntentService.
+	 * This allows the background service to notify the main activity on
+	 * completion of tasks.
 	 */
 	private class MainActivityReceiver extends BroadcastReceiver {
 		// Prevents instantiation
@@ -267,24 +293,20 @@ public class MainActivity extends Activity implements
 				handleFeedResultIntent(intent);
 			} else if (intent.getAction()
 					.equals(Constants.IMAGES_CACHED_INTENT)) {
-				// TODO (maybe we don't want to catch that intent here? but in
-				// article fragment?
+				// Currently, we do nothing with this information.
 			} else {
 				Log.e(TAG, "Wrong intent received.");
 			}
 		}
 
 		/**
-		 * Receives the message that the RSS was received (or not) and takes
+		 * Receives the message that the RSS has been fetched (or not) and takes
 		 * care of notifying the user and the fragments.
-		 * 
-		 * @param intent
 		 */
 		private void handleFeedResultIntent(Intent intent) {
 			int feedResult = intent.getIntExtra(Constants.FEED_RESULT_CODE, 0);
-			Log.v(TAG, "The service result code: '" + feedResult);
-
 			boolean willInvalidateOptionsMenuLater = false;
+			
 			if (!mPrefs.getBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)) {
 				// First time visitor has new articles.
 				long current = System.currentTimeMillis();
@@ -312,11 +334,11 @@ public class MainActivity extends Activity implements
 						.putBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, true)
 						.commit();
 			} else if (feedResult == Constants.FEED_RESULT_NEW_ARTICLES) {
-				// n-th time visitor has new articles."
+				// Returning user has new articles.
 				notifyArticleListDatasetChanged();
 			} else {
 				// No new articles.
-				makeGeorgeToast(getString(R.string.no_new_articles_toast));
+				showGeorgeToast(getString(R.string.no_new_articles_toast));
 			}
 
 			mLastCheckTime = System.currentTimeMillis();

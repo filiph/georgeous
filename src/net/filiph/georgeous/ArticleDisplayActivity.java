@@ -9,6 +9,10 @@ import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 import android.support.v4.app.NavUtils;
 
+/**
+ * The Activity with full screen article view (used whenever the screen
+ * is not wide enough for ArtlicleListFragment panel on the left).
+ */
 public class ArticleDisplayActivity extends Activity implements
 		ArticleDisplayFragment.ArticleShownListener {
 

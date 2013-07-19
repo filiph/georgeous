@@ -25,6 +25,11 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+/**
+ * Fragment that contains the contents of an article. It uses TextView for
+ * showing the contents (as opposed to WebView) - that would not be necessary,
+ * but it allows for more control.
+ */
 public class ArticleDisplayFragment extends Fragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "ArticleDisplayFragment";
@@ -35,6 +40,10 @@ public class ArticleDisplayFragment extends Fragment implements
 	private long mArticleId = -1;
 
 	private ScrollView mScrollView;
+	/**
+	 * Used to persist the relative scroll position of the article for when
+	 * device orientation changes. 0f is top, 1f is bottom.
+	 */
 	private float mYRelativePosition = 0f;
 
 	/**
@@ -44,8 +53,7 @@ public class ArticleDisplayFragment extends Fragment implements
 	 */
 	private boolean mFirstPass = true;
 
-	private static ArticleShownListener sDummyCallbacks = 
-			new ArticleShownListener() {
+	private static ArticleShownListener sDummyCallbacks = new ArticleShownListener() {
 
 		@Override
 		public void onArticleHide() {
@@ -61,6 +69,11 @@ public class ArticleDisplayFragment extends Fragment implements
 
 	private ArticleShownListener mCallbacks = sDummyCallbacks;
 
+	/**
+	 * Shows an article with the given id. The fragment uses a LoaderManager to
+	 * fetch the article asynchronously, and then uses an AsyncTask to build the
+	 * Spanned for the TextView.
+	 */
 	public void loadArticle(long articleId) {
 		mArticleId = articleId;
 
@@ -83,7 +96,6 @@ public class ArticleDisplayFragment extends Fragment implements
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-		// Activities containing this fragment must implement its callbacks.
 		if (!(activity instanceof ArticleShownListener)) {
 			throw new IllegalStateException(
 					"Activity must implement fragment's callbacks.");
@@ -99,12 +111,9 @@ public class ArticleDisplayFragment extends Fragment implements
 					"onCreateLoader called, but mArticleId is invalid");
 		} else {
 			return new CursorLoader(getActivity(),
-					FeedProvider.getArticleByIdUri(mArticleId), 
-					new String[] {
-						DbHelper.KEY_TITLE, DbHelper.KEY_CONTENT, 
-						DbHelper.KEY_CANONICAL_URL
-					}, 
-					null, null, null);
+					FeedProvider.getArticleByIdUri(mArticleId), new String[] {
+							DbHelper.KEY_TITLE, DbHelper.KEY_CONTENT,
+							DbHelper.KEY_CANONICAL_URL }, null, null, null);
 		}
 	}
 
@@ -133,9 +142,7 @@ public class ArticleDisplayFragment extends Fragment implements
 	@Override
 	public void onDetach() {
 		super.onDetach();
-
 		mCallbacks.onArticleHide();
-		// Reset the active callbacks interface to the dummy implementation.
 		mCallbacks = sDummyCallbacks;
 	}
 
@@ -145,12 +152,14 @@ public class ArticleDisplayFragment extends Fragment implements
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		mFirstPass = true; // This came from the loader, so this must be the
-							// first pass.
+		// This method is called by the LoaderManager, so this must be the first
+		// pass.
+		mFirstPass = true;
 
 		// If the user has scrolled already, it means there was time for getting
 		// images (maybe before an orientation change?). So let's not do the
-		// two-pass thing now.
+		// two-pass thing now and instead load both text and the images on the
+		// first pass.
 		boolean loadImagesOnFirstPass = mYRelativePosition != 0f;
 
 		// Use AsyncTask to parse the HTML content and add images.
@@ -196,7 +205,7 @@ public class ArticleDisplayFragment extends Fragment implements
 	}
 
 	/**
-	 * 
+	 * Removes George. This might be a more elaborate method in the future.
 	 */
 	public void removeGeorgePlaceholder() {
 		getActivity().findViewById(R.id.george_placeholder).setVisibility(
@@ -214,12 +223,33 @@ public class ArticleDisplayFragment extends Fragment implements
 		}
 	}
 
+	/**
+	 * Interface that must be implemented by the parent Activity. This allows
+	 * the fragment to inform the activity on the currently displayed article.
+	 */
 	public interface ArticleShownListener {
+		/**
+		 * Callback for when the fragment doesn't show any article anymore.
+		 */
 		public void onArticleHide();
-
+		/**
+		 * Callback for when article has been shown to the user.
+		 */
 		public void onArticleShow(String url);
 	}
 
+	/**
+	 * This AsyncTask is called after we load the article's contents from
+	 * SQLite. Converting the HTML to a Spanned (for use in TextView) is quite
+	 * an expensive task that would otherwise block the UI thread.
+	 * 
+	 * The task is ordinarily called in two passes. First, we show the text of
+	 * the article (which is guaranteed to be accessible offline, i.e. fast) so
+	 * that user has almost immediately something to read.
+	 * 
+	 * Next, we call the ArticleDisplay Task again (from within its own
+	 * onPostExecute method) so that it can load the images.
+	 */
 	private class ArticleDisplayTask extends
 			AsyncTask<Cursor, Void, CharSequence[]> {
 		public ArticleDisplayTask(long articleId, boolean getImages) {
@@ -332,11 +362,11 @@ public class ArticleDisplayFragment extends Fragment implements
 					try {
 						contentView.setText(content);
 					} catch (IndexOutOfBoundsException e) {
-						// Hmm, I guess the JellyBeanSpanFixTextView hasn't
-						// fixed this completely.
-						e.printStackTrace();
+						// The JellyBeanSpanFixTextView fix doesn't work in all
+						// cases. Fall back to plain text.
 						contentView.setText(content.toString());
 						// TODO: Apologize to the user?
+						e.printStackTrace();
 					}
 					progressCircle.setVisibility(View.GONE);
 					if (mFirstPass) {

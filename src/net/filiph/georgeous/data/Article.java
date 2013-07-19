@@ -1,5 +1,8 @@
 package net.filiph.georgeous.data;
 
+/**
+ * A simple class for storing the article data.
+ */ 
 public class Article {
 
 	public Article() {

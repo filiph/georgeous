@@ -19,12 +19,18 @@ import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+/**
+ * An Html.ImageGetter that also caches images that it fetches.
+ */
 public class ImageGetter implements ImageGetterWithManageSpace {
 	private static final String TAG = "ImageGetter";
 
 	private static final long MAX_SIZE_OF_CACHE = 5000000; // 5MB self-imposed
 															// quota
 
+	/**
+	 * Sets the bounds of the image according to given DisplayMetrics.
+	 */
 	public static void setBounds(BitmapDrawable d, DisplayMetrics metrics) {
 		if (d == null)
 			return;
@@ -43,6 +49,21 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 		d.setBounds(0, 0, width, height);
 	}
 
+	/**
+	 * Creates and sets up the ImageGetter.
+	 * 
+	 * @param externalCacheDir
+	 *            Directory for caching.
+	 * @param resources
+	 *            Activity's Resources.
+	 * @param metrics
+	 *            Activity's DisplayMetrics.
+	 * @param cachingOnly
+	 *            True if the ImageGetter is called solely to cache the fetched
+	 *            images, without intention to display them right away. This
+	 *            allows for some basic optimization.
+	 * @throws IllegalStateException
+	 */
 	public ImageGetter(File externalCacheDir, Resources resources,
 			DisplayMetrics metrics, boolean cachingOnly)
 			throws IllegalStateException {
@@ -84,7 +105,6 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 	}
 
 	boolean mExternalStorageAvailable = false;
-
 	boolean mExternalStorageWriteable = false;
 
 	/**
@@ -96,9 +116,12 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 	File mExternalCacheDir;
 
 	Resources mResources;
-
 	DisplayMetrics mMetrics;
 
+	/**
+	 * A Map of image URL hashes and the images respective filenames in the 
+	 * cache.
+	 */
 	HashMap<String, String> cacheFilenames;
 
 	@Override
@@ -113,7 +136,7 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 			// Drawable not in cache.
 			try {
 				InputStream in = new java.net.URL(url).openStream();
-				boolean cached = tryCaching(in, url);
+				boolean cached = cacheImageStream(in, url);
 				in.close();
 				if (cached && !mCachingOnly) {
 					// Now that we have the file offline, build the drawable.
@@ -145,7 +168,7 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 	}
 
 	/**
-	 * This method deletes files over quota.
+	 * This method deletes cached files over quota.
 	 */
 	@Override
 	public void manageSpace() {
@@ -176,7 +199,7 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 	}
 
 	/**
-	 * @param url
+	 * Tries to find the image in the cache.
 	 */
 	private BitmapDrawable getBitmapFromCache(String url) {
 		String hash = getUrlHash(url);
@@ -188,7 +211,6 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 			File file = new File(mExternalCacheDir, filename);
 			assert (file.exists()); // Should exist since it's in the HashMap
 									// created moments ago.
-			// TODO: try catch
 			return new BitmapDrawable(mResources, file.getAbsolutePath());
 		} else {
 			// Did not find the cashed file.
@@ -197,7 +219,7 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 	}
 
 	/**
-	 * @param url
+	 * Extracts the filename extension from the url.
 	 */
 	private String getExtensionFromUrl(String url) {
 		return "image"; // Let the BitmapImageFactory do the work of recognizing
@@ -205,16 +227,15 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 	}
 
 	/**
-	 * @param url
-	 * @return
+	 * Constructs the filename for the local cache file of the image at the
+	 * given url.
 	 */
 	private String getRelativeCacheFilename(String url) {
 		return getUrlHash(url) + "." + getExtensionFromUrl(url);
 	}
 
 	/**
-	 * @param url
-	 * @return
+	 * Creates the hash to use for the cache filename.
 	 */
 	private String getUrlHash(String url) {
 		return Integer.toHexString(url.hashCode());
@@ -222,15 +243,18 @@ public class ImageGetter implements ImageGetterWithManageSpace {
 
 	/**
 	 * Sets the bounds of the Drawable according to metrics.
-	 * 
-	 * @param d
 	 */
 	private void setBounds(BitmapDrawable d) {
 		assert (mMetrics != null);
 		ImageGetter.setBounds(d, mMetrics);
 	}
 
-	private boolean tryCaching(InputStream in, String url) {
+	/**
+	 * Reads from the stream and saves it to the local filesystem.
+	 * 
+	 * @return True on success, false on failure.
+	 */
+	private boolean cacheImageStream(InputStream in, String url) {
 		if (!mExternalStorageAvailable || !mExternalStorageWriteable
 				|| mExternalCacheDir == null) {
 			return false;

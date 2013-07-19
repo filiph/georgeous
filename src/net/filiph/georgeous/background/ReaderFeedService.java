@@ -26,10 +26,19 @@ import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+/**
+ * This is the background IntentService in charge of fetching the Atom feed,
+ * parsing it, and saving the data in the SQLite database. It notifies
+ * the MainActivity on completion (success, failure, no new articles).
+ */
 public class ReaderFeedService extends IntentService {
 	private static final String TAG = "GeorgeousReaderFeedService";
 
-	private static final String FEED_URL = "http://android-developers.blogspot.com/atom.xml";
+	/**
+	 * The (hardcoded) url of the feed. TODO: make this a setting.
+	 */
+	private static final String FEED_URL = 
+			"http://android-developers.blogspot.com/atom.xml";
 
 	private static final int MAX_ARTICLES_TO_PRELOAD = 5;
 
@@ -37,6 +46,10 @@ public class ReaderFeedService extends IntentService {
 		super("ReaderFeedIntentService");
 	}
 
+	/**
+	 * Connects to the Internet, fetches the Atom feed, parses it, and returns
+	 * the articles.  
+	 */
 	private List<Article> fetchArticles(String urlString) {
 		List<Article> articles = null;
 		try {
@@ -76,6 +89,9 @@ public class ReaderFeedService extends IntentService {
 		return articles;
 	}
 
+	/**
+	 * Parses the given HTML and caches the contained images. 
+	 */
 	private void getArticleImages(String contentHtml) {
 		String state = Environment.getExternalStorageState();
 
@@ -107,8 +123,6 @@ public class ReaderFeedService extends IntentService {
 	/**
 	 * Fetches the Atom XML and puts the metadata and HTML contents into the
 	 * SQLite database.
-	 * 
-	 * @param urlString
 	 */
 	private void getArticles(String urlString) {
 		List<Article> articles = fetchArticles(urlString);
@@ -128,8 +142,8 @@ public class ReaderFeedService extends IntentService {
 	}
 
 	/**
+	 * Inserts articles into the SQLite database.
 	 * 
-	 * @param articles
 	 * @return The number of articles that previously weren't in the database.
 	 */
 	private int insertArticlesIntoDatabase(List<Article> articles) {
@@ -185,6 +199,10 @@ public class ReaderFeedService extends IntentService {
 		return newArticles;
 	}
 
+	/**
+	 * Sends the result code to interested broadcast receivers (e.g.
+	 * MainActivity).
+	 */
 	private void sendFeedResult(int resultCode) {
 		Intent localIntent = new Intent(Constants.FEED_RESULT_INTENT).putExtra(
 				Constants.FEED_RESULT_CODE, resultCode);

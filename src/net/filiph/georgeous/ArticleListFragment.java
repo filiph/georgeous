@@ -16,11 +16,16 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 
+/**
+ * The fragment loads and shows the list of articles in the SQLite database.
+ * It notifies the parent activity on item selection through Callbacks interface
+ * that the Activity needs to implement. 
+ */
 public class ArticleListFragment extends ListFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 	private static final String TAG = "ArticleListFragment";
 	
-	private static final int ARTICLE_LIST_ID = 0;
+	private static final int ARTICLE_LIST_LOADER_ID = 0;
 
 	private static final String SAVED_ACTIVATED_POSITION = 
 			"SAVED_ACTIVATED_POSITION";
@@ -51,15 +56,18 @@ public class ArticleListFragment extends ListFragment implements
 
 	private int mActivatedPosition = ListView.INVALID_POSITION;
 
-	public void notifyDatasetChanged() {
-		getLoaderManager().restartLoader(ARTICLE_LIST_ID, null, this);
+	/**
+	 * Called when the dataset in the database has changed and needs to be
+	 * reloaded.
+	 */
+	public void onDatasetChanged() {
+		getLoaderManager().restartLoader(ARTICLE_LIST_LOADER_ID, null, this);
 	}
 
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 
-		// Activities containing this fragment must implement its callbacks.
 		if (!(activity instanceof Callbacks)) {
 			throw new IllegalStateException(
 					"Activity must implement fragment's callbacks.");
@@ -91,8 +99,6 @@ public class ArticleListFragment extends ListFragment implements
 	@Override
 	public void onDetach() {
 		super.onDetach();
-
-		// Reset the active callbacks interface to the dummy implementation.
 		mCallbacks = sDummyCallbacks;
 	}
 

@@ -5,6 +5,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 
+/**
+ * An Html.ImageGetter that returns an empty Drawable. It may be extended to 
+ * show a placeholder image or to set bounds for the image if we know them.  
+ */
 public class BlankImageGetter implements ImageGetterWithManageSpace {
 
 	public BlankImageGetter(Resources resources, DisplayMetrics metrics) {

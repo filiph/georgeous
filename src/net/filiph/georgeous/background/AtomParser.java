@@ -26,15 +26,20 @@ public class AtomParser {
 	// We don't use namespaces
 	private static final String ns = null;
 
-	// 2013-06-03T10:14:00.000-07:00 (but we only use the date part)
+	/**
+	 * Atom feeds should use the RFC 3339 format for their timestamps. But
+	 * because they sometimes don't, and because we don't really care about the
+	 * exact time, we use only the date information.
+	 */
 	final static String sFormat = "yyyy-MM-dd";
 
 	final static SimpleDateFormat sInputParser = new SimpleDateFormat(sFormat,
 			Locale.US); // Because the Android blog is mostly updated from
-						// the US.
+						// the US. We care less what the date was in the user's
+						// locale than what the date was for the author.
 
 	final static SimpleDateFormat sHumanOutputParser = new SimpleDateFormat(
-			"MMMM d", Locale.US); // Ex.: "May 21"
+			"MMMM d", Locale.US); // Example output: "May 21".
 
 	private static final String POSTED_BY_STRING = "Posted by";
 
@@ -57,6 +62,10 @@ public class AtomParser {
 		}
 	}
 
+	/**
+	 * This creates the string that we use in ArticleListView alongside the
+	 * article title. Ideally, it looks something like: "May 27, Reto Meier".
+	 */
 	private static String buildHumanReadableInfoString(Article article) {
 		StringBuilder strBuilder = new StringBuilder();
 
@@ -91,7 +100,8 @@ public class AtomParser {
 	 * hack (if there was a change in the way the Android blog lists authors, we
 	 * would not be able to detect them, or worse, we would detect something
 	 * stupid). Note that the usual way of detecting authors (from <author>)
-	 * doesn't work here because it's always "Android Developer".
+	 * doesn't work here (and on many other blogs) because it's always
+	 * "Android Developer".
 	 */
 	private static String guessAuthor(String content) {
 		String guess = null;
@@ -127,11 +137,11 @@ public class AtomParser {
 		return null;
 	}
 
-	// Parses the contents of an entry. If it encounters a title, summary, or
-	// link tag, hands them
-	// off
-	// to their respective &quot;read&quot; methods for processing. Otherwise,
-	// skips the tag.
+	/**
+	 * Parses the contents of an entry. If it encounters a title, summary, or
+	 * link tag, hands them off to their respective read___ methods for
+	 * processing. Otherwise, skips the tag.
+	 */
 	private static Article readEntry(XmlPullParser parser)
 			throws XmlPullParserException, IOException {
 		parser.require(XmlPullParser.START_TAG, ns, "entry");
