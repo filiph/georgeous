@@ -52,9 +52,9 @@ public class FeedProvider extends ContentProvider {
         int match = sURIMatcher.match(uri);
         switch (match) {
             case ARTICLES:
-                return "vdn.android.cursor.dir/" + "vdn.net.filiph.georgeous.provider.articles";
+                return "vdn.android.cursor.dir/vdn.net.filiph.georgeous.provider.articles";
             case ARTICLES_ID:
-                return "vdn.android.cursor.item/" + "vdn.net.filiph.georgeous.provider.articles";
+                return "vdn.android.cursor.item/vdn.net.filiph.georgeous.provider.articles";
             default:
                 return null;
         }

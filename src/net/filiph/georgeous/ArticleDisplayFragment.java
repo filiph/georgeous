@@ -352,7 +352,9 @@ public class ArticleDisplayFragment extends Fragment implements
                             @Override
                             public void run() {
                                 // Good enough for now. TODO: better.
-                                mScrollView.setScrollY((int) (mScrollView.getMaxScrollAmount() * mYRelativePosition));
+                                int pos =
+                                        (int) (mScrollView.getMaxScrollAmount() * mYRelativePosition);
+                                mScrollView.setScrollY(pos);
                             }
                         });
                     }

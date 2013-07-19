@@ -72,7 +72,7 @@ public class ReaderFeedService extends IntentService {
             e.printStackTrace();
             return null;
         } catch (XmlPullParserException e) {
-            Log.e(TAG, "The received XML was malformed " + "or there was an error with parsing it.");
+            Log.e(TAG, "The received XML was malformed or there was an error with parsing it.");
             sendFeedResult(Constants.FEED_RESULT_OTHER_ERROR);
             e.printStackTrace();
             return null;

@@ -202,8 +202,7 @@ public class ImageGetter implements ImageGetterWithManageSpace {
         if (cacheFilenames.containsKey(hash)) {
             String filename = cacheFilenames.get(hash);
             File file = new File(mExternalCacheDir, filename);
-            assert (file.exists()); // Should exist since it's in the HashMap
-                                    // created moments ago.
+            assert (file.exists()); // Should exist since it's in the HashMap created moments ago.
             return new BitmapDrawable(mResources, file.getAbsolutePath());
         } else {
             // Did not find the cashed file.
