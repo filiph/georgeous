@@ -93,7 +93,7 @@ public class ArticleListFragment extends ListFragment implements
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		Log.v(TAG, "onCreateLoader called");
 		return new CursorLoader(getActivity(), FeedProvider.ARTICLES_URI, null,
-				null, null, null);
+				null, null, DbHelper.KEY_PUBLISHED_TIMESTAMP + " DESC");
 	}
 
 	@Override
