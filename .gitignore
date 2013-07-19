@@ -1,3 +1,7 @@
 /gen
 /bin
 .DS_Store
+.classpath
+.project
+proguard-project.txt
+project.properties
