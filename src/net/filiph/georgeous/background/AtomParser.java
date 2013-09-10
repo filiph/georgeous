@@ -101,12 +101,12 @@ public class AtomParser {
      */
     private static String guessAuthor(String content) {
         String guess = null;
-        int maxChars = Math.min(content.length(), MAX_CHARS_WALKED);
         int i = content.indexOf(POSTED_BY_STRING);
         if (i == -1) {
             return null;
         }
         int start = i + POSTED_BY_STRING.length() + 1;
+        int maxChars = Math.min(content.length(), start + MAX_CHARS_WALKED);
         final String localContent = content.substring(start, maxChars);
         i = start;
         // First pass: name is in an <a> tag

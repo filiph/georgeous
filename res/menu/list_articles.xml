@@ -1,13 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item android:id="@+id/menu_refresh"
-          android:icon="@drawable/navigation_refresh"
+          android:icon="@drawable/ic_action_refresh"
           android:title="@string/menu_refresh"
           android:onClick="onMenuRefreshClick"
           android:showAsAction="ifRoom" />
     
     <item android:id="@+id/menu_share"
-          android:icon="@drawable/social_share"
+          android:icon="@drawable/ic_action_share"
           android:title="@string/menu_share"
           android:actionProviderClass="android.widget.ShareActionProvider"
           android:showAsAction="ifRoom"

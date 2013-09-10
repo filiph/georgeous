@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/rhythm_size_third"
-            android:drawableRight="@drawable/george"
+            android:drawableRight="@drawable/ic_launcher"
             android:gravity="center_vertical"
             android:text="@string/app_name"
             android:textColor="@color/white" />
