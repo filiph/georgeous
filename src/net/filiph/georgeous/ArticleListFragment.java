@@ -81,7 +81,7 @@ public class ArticleListFragment extends ListFragment implements
         int[] toViews = { R.id.article_in_list_title, R.id.more_info };
 
         mAdapter =
-                new SimpleCursorAdapter(getActivity(), R.layout.each_article_in_list, null,
+                new SimpleCursorAdapter(getActivity(), R.layout.article_list_item, null,
                         fromColumns, toViews, 0);
         setListAdapter(mAdapter);
     }
