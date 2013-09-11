@@ -1,7 +1,7 @@
 package net.filiph.georgeous;
 
 import net.filiph.georgeous.data.BlankImageGetter;
-import net.filiph.georgeous.data.DbHelper;
+import net.filiph.georgeous.data.FeedContract;
 import net.filiph.georgeous.data.FeedProvider;
 import net.filiph.georgeous.data.ImageGetter;
 import net.filiph.georgeous.data.ImageGetterWithManageSpace;
@@ -104,8 +104,8 @@ public class ArticleDisplayFragment extends Fragment implements
             throw new IllegalStateException("onCreateLoader called, but mArticleId is invalid");
         } else {
             return new CursorLoader(getActivity(), FeedProvider.getArticleByIdUri(mArticleId),
-                    new String[] { DbHelper.KEY_TITLE, DbHelper.KEY_CONTENT,
-                            DbHelper.KEY_CANONICAL_URL }, null, null, null);
+                    new String[] { FeedContract.KEY_TITLE, FeedContract.KEY_CONTENT,
+                            FeedContract.KEY_CANONICAL_URL }, null, null, null);
         }
     }
 
@@ -284,9 +284,9 @@ public class ArticleDisplayFragment extends Fragment implements
                 }
 
                 if (data.moveToFirst()) {
-                    title = data.getString(data.getColumnIndexOrThrow(DbHelper.KEY_TITLE));
-                    contentHtml = data.getString(data.getColumnIndexOrThrow(DbHelper.KEY_CONTENT));
-                    url = data.getString(data.getColumnIndexOrThrow(DbHelper.KEY_CANONICAL_URL));
+                    title = data.getString(data.getColumnIndexOrThrow(FeedContract.KEY_TITLE));
+                    contentHtml = data.getString(data.getColumnIndexOrThrow(FeedContract.KEY_CONTENT));
+                    url = data.getString(data.getColumnIndexOrThrow(FeedContract.KEY_CANONICAL_URL));
                 }
 
                 if (title == null || contentHtml == null) {

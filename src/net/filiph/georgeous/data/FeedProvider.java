@@ -43,7 +43,7 @@ public class FeedProvider extends ContentProvider {
         // TODO: catch DatabaseLockedException..
         Log.w(TAG, "Delete is not fully implemented on the FeedProvider. "
                 + "It just deletes the whole thing.");
-        mOpenHelper.getWritableDatabase().execSQL("DELETE FROM " + DbHelper.ARTICLE_TABLE_NAME);
+        mOpenHelper.getWritableDatabase().execSQL("DELETE FROM " + FeedContract.ARTICLE_TABLE_NAME);
         return 0;
     }
 
@@ -101,7 +101,7 @@ public class FeedProvider extends ContentProvider {
 
     private Cursor getArticleById(long id) {
         SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
-        qBuilder.setTables(DbHelper.ARTICLE_TABLE_NAME);
+        qBuilder.setTables(FeedContract.ARTICLE_TABLE_NAME);
         qBuilder.appendWhere("_ID=" + id);
         return qBuilder
                 .query(mOpenHelper.getReadableDatabase(), null, null, null, null, null, null);
@@ -110,7 +110,7 @@ public class FeedProvider extends ContentProvider {
     private Cursor getArticles(String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
-        qBuilder.setTables(DbHelper.ARTICLE_TABLE_NAME);
+        qBuilder.setTables(FeedContract.ARTICLE_TABLE_NAME);
         return qBuilder.query(mOpenHelper.getReadableDatabase(), projection, selection,
                 selectionArgs, null, null, sortOrder);
     }

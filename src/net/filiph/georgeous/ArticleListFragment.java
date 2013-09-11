@@ -1,6 +1,6 @@
 package net.filiph.georgeous;
 
-import net.filiph.georgeous.data.DbHelper;
+import net.filiph.georgeous.data.FeedContract;
 import net.filiph.georgeous.data.FeedProvider;
 import android.app.Activity;
 import android.app.ListFragment;
@@ -77,7 +77,7 @@ public class ArticleListFragment extends ListFragment implements
         super.onCreate(savedInstanceState);
         this.setRetainInstance(true);
 
-        String[] fromColumns = { DbHelper.KEY_TITLE, DbHelper.KEY_HUMAN_INFO };
+        String[] fromColumns = { FeedContract.KEY_TITLE, FeedContract.KEY_HUMAN_INFO };
         int[] toViews = { R.id.article_in_list_title, R.id.more_info };
 
         mAdapter =
@@ -90,7 +90,7 @@ public class ArticleListFragment extends ListFragment implements
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.v(TAG, "onCreateLoader called");
         return new CursorLoader(getActivity(), FeedProvider.ARTICLES_URI, null, null, null,
-                DbHelper.KEY_PUBLISHED_TIMESTAMP + " DESC");
+                FeedContract.KEY_PUBLISHED_TIMESTAMP + " DESC");
     }
 
     @Override

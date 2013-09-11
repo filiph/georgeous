@@ -12,6 +12,7 @@ import java.util.List;
 import net.filiph.georgeous.Constants;
 import net.filiph.georgeous.data.Article;
 import net.filiph.georgeous.data.DbHelper;
+import net.filiph.georgeous.data.FeedContract;
 import net.filiph.georgeous.data.ImageGetter;
 import net.filiph.georgeous.data.ImageGetterWithManageSpace;
 
@@ -150,7 +151,7 @@ public class ReaderFeedService extends IntentService {
 
             for (Article article : articles) {
                 long rowId =
-                        db.insertWithOnConflict(DbHelper.ARTICLE_TABLE_NAME, null,
+                        db.insertWithOnConflict(FeedContract.ARTICLE_TABLE_NAME, null,
                                 DbHelper.articleToContentValues(article),
                                 SQLiteDatabase.CONFLICT_IGNORE); // We assume articles stay the
                                                                  // same. TODO: don't
