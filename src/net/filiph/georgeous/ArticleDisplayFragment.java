@@ -2,13 +2,11 @@ package net.filiph.georgeous;
 
 import net.filiph.georgeous.data.BlankImageGetter;
 import net.filiph.georgeous.data.FeedContract;
-import net.filiph.georgeous.data.FeedProvider;
 import net.filiph.georgeous.data.ImageGetter;
 import net.filiph.georgeous.data.ImageGetterWithManageSpace;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -103,9 +101,7 @@ public class ArticleDisplayFragment extends Fragment implements
         if (mArticleId == -1) {
             throw new IllegalStateException("onCreateLoader called, but mArticleId is invalid");
         } else {
-            return new CursorLoader(getActivity(), FeedProvider.getArticleByIdUri(mArticleId),
-                    new String[] { FeedContract.KEY_TITLE, FeedContract.KEY_CONTENT,
-                            FeedContract.KEY_CANONICAL_URL }, null, null, null);
+            return FeedContract.getArticleByIdLoader(getActivity(), mArticleId);
         }
     }
 
@@ -285,8 +281,11 @@ public class ArticleDisplayFragment extends Fragment implements
 
                 if (data.moveToFirst()) {
                     title = data.getString(data.getColumnIndexOrThrow(FeedContract.KEY_TITLE));
-                    contentHtml = data.getString(data.getColumnIndexOrThrow(FeedContract.KEY_CONTENT));
-                    url = data.getString(data.getColumnIndexOrThrow(FeedContract.KEY_CANONICAL_URL));
+                    contentHtml =
+                            data.getString(data.getColumnIndexOrThrow(FeedContract.KEY_CONTENT));
+                    url =
+                            data.getString(data
+                                    .getColumnIndexOrThrow(FeedContract.KEY_CANONICAL_URL));
                 }
 
                 if (title == null || contentHtml == null) {

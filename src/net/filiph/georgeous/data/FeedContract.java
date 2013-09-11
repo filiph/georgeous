@@ -1,6 +1,8 @@
 package net.filiph.georgeous.data;
 
+import android.app.Activity;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.net.Uri;
 
 public class FeedContract {
@@ -49,4 +51,10 @@ public class FeedContract {
 
     public static final Uri ARTICLES_URI = Uri.parse("content://" + AUTHORITY + "/"
             + ARTICLE_TABLE_NAME);
+
+    public static CursorLoader getArticleByIdLoader(Activity activity, long articleId) {
+        return new CursorLoader(activity, FeedProvider.getArticleByIdUri(articleId), new String[] {
+                KEY_TITLE, KEY_CONTENT, KEY_CANONICAL_URL },
+                null, null, null);
+    }
 }
