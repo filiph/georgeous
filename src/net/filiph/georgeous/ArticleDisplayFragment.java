@@ -4,6 +4,9 @@ import net.filiph.georgeous.data.BlankImageGetter;
 import net.filiph.georgeous.data.FeedContract;
 import net.filiph.georgeous.data.ImageGetter;
 import net.filiph.georgeous.data.ImageGetterWithManageSpace;
+
+import org.xml.sax.XMLReader;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -12,6 +15,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
@@ -310,10 +314,36 @@ public class ArticleDisplayFragment extends Fragment implements
                 imgGetter = new BlankImageGetter(getResources(), metrics);
             }
             // Next is the expensive part
-            CharSequence content = Html.fromHtml(contentHtml, imgGetter, null);
+            CharSequence content =
+                    Html.fromHtml(contentHtml, imgGetter, new IgnoreStyleTagHandler());
             imgGetter.manageSpace();
 
             return new CharSequence[] { title, content };
+        }
+
+        private class IgnoreStyleTagHandler implements Html.TagHandler {
+            int startStyle = -1;
+
+            @Override
+            public void
+                    handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+                if (tag.equalsIgnoreCase("style")) {
+                    if (opening) {
+                        Log.d(TAG, "Encountered opening <style> tag.");
+                        int len = output.length();
+                        // Mark start of <style>.
+                        startStyle = len;
+                        // output.setSpan(new StrikethroughSpan(), len, len,
+                        // Spannable.SPAN_MARK_MARK);
+                    } else {
+                        Log.d(TAG, "Encountered closing </style> tag.");
+                        if (startStyle != -1) {
+                            output.delete(startStyle, output.length());
+                            startStyle = -1;
+                        }
+                    }
+                }
+            }
         }
 
         @Override
