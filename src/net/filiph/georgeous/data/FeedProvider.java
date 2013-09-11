@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
@@ -29,8 +30,8 @@ public class FeedProvider extends ContentProvider {
     }
 
     public static Uri getArticleByIdUri(long id) {
-        return Uri.parse("content://" + FeedContract.AUTHORITY + "/" + FeedContract.ARTICLE_TABLE_NAME + "/"
-                + id);
+        return Uri.parse("content://" + FeedContract.AUTHORITY + "/"
+                + FeedContract.ARTICLE_TABLE_NAME + "/" + id);
     }
 
     @Override
@@ -57,8 +58,24 @@ public class FeedProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        Log.i(TAG, "Insert is not implemented on the FeedProvider.");
-        return Uri.EMPTY;
+        Log.v(TAG, "FeedProvider got an insert request uri " + uri.toString());
+        if (sURIMatcher.match(uri) != ARTICLES) {
+            throw new IllegalArgumentException("Unsupported URI: " + uri.toString());
+        }
+
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+
+        long rowId =
+                db.insertWithOnConflict(FeedContract.ARTICLE_TABLE_NAME, null, values,
+                        SQLiteDatabase.CONFLICT_IGNORE); // We assume articles stay the
+                                                         // same. TODO: don't
+
+        Uri result = null;
+        if (rowId > 0) {
+            result = ContentUris.withAppendedId(FeedContract.ARTICLES_URI, rowId);
+            getContext().getContentResolver().notifyChange(result, null);
+        }
+        return result;
     }
 
     @Override

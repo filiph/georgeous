@@ -11,7 +11,6 @@ import java.util.List;
 
 import net.filiph.georgeous.Constants;
 import net.filiph.georgeous.data.Article;
-import net.filiph.georgeous.data.DbHelper;
 import net.filiph.georgeous.data.FeedContract;
 import net.filiph.georgeous.data.ImageGetter;
 import net.filiph.georgeous.data.ImageGetterWithManageSpace;
@@ -19,9 +18,10 @@ import net.filiph.georgeous.data.ImageGetterWithManageSpace;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
@@ -144,21 +144,15 @@ public class ReaderFeedService extends IntentService {
         int newArticles = 0;
         int preloadedArticles = 0;
 
-        SQLiteDatabase db = null;
         try {
-            DbHelper helper = new DbHelper(this);
-            db = helper.getWritableDatabase();
-
             for (Article article : articles) {
-                long rowId =
-                        db.insertWithOnConflict(FeedContract.ARTICLE_TABLE_NAME, null,
-                                FeedContract.articleToContentValues(article),
-                                SQLiteDatabase.CONFLICT_IGNORE); // We assume articles stay the
-                                                                 // same. TODO: don't
-                if (rowId != -1) {
+                ContentValues articleValues = FeedContract.articleToContentValues(article);
+                Uri newUri = getContentResolver().insert(FeedContract.ARTICLES_URI, articleValues);
+
+                if (newUri != null) {
                     newArticles += 1;
-                    Log.v(TAG, "- Added article " + article.title + " to database on row " + rowId
-                            + ".");
+                    Log.v(TAG, "- Added article " + article.title + " to database on row URI "
+                            + newUri.toString() + ".");
 
                     // Add an intent to cache images (will be executed in
                     // sequence after this task is finished)
@@ -178,10 +172,6 @@ public class ReaderFeedService extends IntentService {
             sendFeedResult(Constants.FEED_RESULT_DATABASE_ERROR);
             e.printStackTrace();
             return -1;
-        } finally {
-            if (db != null) {
-                db.close();
-            }
         }
         return newArticles;
     }
