@@ -1,6 +1,10 @@
 package net.filiph.georgeous.data;
 
+import android.content.ContentValues;
+
 public class FeedContract {
+    private FeedContract() {
+    }
 
     public static final String ARTICLE_TABLE_NAME = "articles";
     public static final String KEY_TITLE = "title";
@@ -21,5 +25,18 @@ public class FeedContract {
             + " TEXT, " + KEY_PUBLISHED_TIMESTAMP + " TEXT, " + KEY_UPDATED_TIMESTAMP + " TEXT, "
             + KEY_CATEGORIES + " TEXT, " + KEY_HUMAN_INFO + " TEXT, " + KEY_READCOUNT
             + " INTEGER, " + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT);";
+
+    public static ContentValues articleToContentValues(Article article) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_TITLE, article.title);
+        values.put(KEY_CONTENT, article.content);
+        values.put(KEY_AUTHOR_GUESS, article.author_guess);
+        values.put(KEY_CANONICAL_URL, article.canonical_url);
+        values.put(KEY_THUMBNAIL_URL, article.thumbnail_url);
+        values.put(KEY_PUBLISHED_TIMESTAMP, article.published_timestamp);
+        values.put(KEY_UPDATED_TIMESTAMP, article.updated_timestamp);
+        values.put(KEY_HUMAN_INFO, article.human_info);
+        return values;
+    }
 
 }

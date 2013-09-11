@@ -152,7 +152,7 @@ public class ReaderFeedService extends IntentService {
             for (Article article : articles) {
                 long rowId =
                         db.insertWithOnConflict(FeedContract.ARTICLE_TABLE_NAME, null,
-                                DbHelper.articleToContentValues(article),
+                                FeedContract.articleToContentValues(article),
                                 SQLiteDatabase.CONFLICT_IGNORE); // We assume articles stay the
                                                                  // same. TODO: don't
                 if (rowId != -1) {
