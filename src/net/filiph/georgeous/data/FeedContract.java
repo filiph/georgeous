@@ -1,10 +1,18 @@
 package net.filiph.georgeous.data;
 
 import android.content.ContentValues;
+import android.net.Uri;
 
 public class FeedContract {
     private FeedContract() {
     }
+
+    public static final String AUTHORITY = "net.filiph.georgeous.provider";
+
+    public static final String CONTENT_ITEM_TYPE =
+            "vdn.android.cursor.item/vdn.net.filiph.georgeous.provider.articles";
+    public static final String CONTENT_TYPE =
+            "vdn.android.cursor.dir/vdn.net.filiph.georgeous.provider.articles";
 
     public static final String ARTICLE_TABLE_NAME = "articles";
     public static final String KEY_TITLE = "title";
@@ -39,4 +47,6 @@ public class FeedContract {
         return values;
     }
 
+    public static final Uri ARTICLES_URI = Uri.parse("content://" + AUTHORITY + "/"
+            + ARTICLE_TABLE_NAME);
 }

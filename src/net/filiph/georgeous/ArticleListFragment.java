@@ -1,7 +1,6 @@
 package net.filiph.georgeous;
 
 import net.filiph.georgeous.data.FeedContract;
-import net.filiph.georgeous.data.FeedProvider;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
@@ -89,7 +88,7 @@ public class ArticleListFragment extends ListFragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.v(TAG, "onCreateLoader called");
-        return new CursorLoader(getActivity(), FeedProvider.ARTICLES_URI, null, null, null,
+        return new CursorLoader(getActivity(), FeedContract.ARTICLES_URI, null, null, null,
                 FeedContract.KEY_PUBLISHED_TIMESTAMP + " DESC");
     }
 

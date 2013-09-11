@@ -1,7 +1,7 @@
 package net.filiph.georgeous;
 
 import net.filiph.georgeous.background.ReaderFeedService;
-import net.filiph.georgeous.data.FeedProvider;
+import net.filiph.georgeous.data.FeedContract;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
@@ -136,7 +136,7 @@ public class MainActivity extends Activity implements ArticleListFragment.Callba
 
     public boolean onMenuClearClick(MenuItem item) {
         ContentResolver cr = getContentResolver();
-        cr.delete(FeedProvider.ARTICLES_URI, null, null);
+        cr.delete(FeedContract.ARTICLES_URI, null, null);
 
         mPrefs.edit().putBoolean(DATA_ALREADY_LOADED_FOR_FIRST_TIME, false)
                 .putLong(LAST_CHECK_FINISHED_TIME, 0).commit();

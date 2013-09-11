@@ -23,19 +23,14 @@ public class FeedProvider extends ContentProvider {
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-    private static final String AUTHORITY = "net.filiph.georgeous.provider";
-    private static final String TABLE_ARTICLES = "articles";
-
-    public static final Uri ARTICLES_URI = Uri.parse("content://" + AUTHORITY + "/"
-            + TABLE_ARTICLES);
-
     static {
         sURIMatcher.addURI("net.filiph.georgeous.provider", "articles", ARTICLES);
         sURIMatcher.addURI("net.filiph.georgeous.provider", "articles/#", ARTICLES_ID);
     }
 
     public static Uri getArticleByIdUri(long id) {
-        return Uri.parse("content://" + AUTHORITY + "/" + TABLE_ARTICLES + "/" + id);
+        return Uri.parse("content://" + FeedContract.AUTHORITY + "/" + FeedContract.ARTICLE_TABLE_NAME + "/"
+                + id);
     }
 
     @Override
@@ -52,9 +47,9 @@ public class FeedProvider extends ContentProvider {
         int match = sURIMatcher.match(uri);
         switch (match) {
             case ARTICLES:
-                return "vdn.android.cursor.dir/vdn.net.filiph.georgeous.provider.articles";
+                return FeedContract.CONTENT_TYPE;
             case ARTICLES_ID:
-                return "vdn.android.cursor.item/vdn.net.filiph.georgeous.provider.articles";
+                return FeedContract.CONTENT_ITEM_TYPE;
             default:
                 return null;
         }
